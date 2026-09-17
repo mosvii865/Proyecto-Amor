@@ -4,13 +4,6 @@ Nuestro Wrapped 💫 — 3 Años Juntos
 -----------------------------------
 App en Streamlit estilo "Spotify Wrapped" para celebrar el aniversario.
 Un solo archivo, sin dependencias raras: streamlit + Pillow.
-
-Cómo correrla:
-    pip install -r requirements.txt
-    streamlit run app.py
-
-Organiza tus fotos en la carpeta fotos/ (ver README al final de este archivo
-o el mensaje de instrucciones que acompaña este código).
 """
 
 import os
@@ -34,8 +27,6 @@ st.set_page_config(
 FOTOS_DIR = "fotos"
 GALERIA_DIR = os.path.join(FOTOS_DIR, "galeria")
 
-# Mapa de fotos "ancla" por capítulo. Si el archivo no existe, se muestra
-# un placeholder elegante en su lugar — la app nunca truena por fotos faltantes.
 IMAGENES = {
     "inicio": [os.path.join(FOTOS_DIR, "image_0.png")],
     "caifanes": [os.path.join(FOTOS_DIR, "image_1.png")],
@@ -57,8 +48,6 @@ IMAGENES = {
     ],
 }
 
-# Paleta: cada capítulo tiene su propio par de acentos (como en Wrapped real,
-# cada tarjeta de estadística tiene su propia identidad de color).
 ACENTOS = {
     "portada": ("#FF3E7F", "#8C52FF"),
     "inicio": ("#FF8A4C", "#FF3E7F"),
@@ -176,7 +165,6 @@ def inyectar_css():
             background: #0B0714;
         }
 
-        /* ---------- Encabezado de capítulo ---------- */
         .emoji-badge {
             font-size: 2.4rem;
             line-height: 1;
@@ -195,7 +183,6 @@ def inyectar_css():
             margin-bottom: 1.4rem;
         }
 
-        /* ---------- Bloques de anécdota (sin caja, solo borde vivo) ---------- */
         .anecdote {
             border-left: 3px solid rgba(255,255,255,0.25);
             padding: 0.15rem 0 0.15rem 1.1rem;
@@ -205,7 +192,6 @@ def inyectar_css():
             color: #EDE7F6;
         }
 
-        /* ---------- Fotos ---------- */
         .img-caption {
             text-align: center;
             font-size: 0.88rem;
@@ -229,7 +215,6 @@ def inyectar_css():
             text-align: center;
         }
 
-        /* ---------- Franja de estadísticas (estilo boleto) ---------- */
         .stats-row {
             display: flex;
             flex-wrap: wrap;
@@ -262,7 +247,6 @@ def inyectar_css():
             margin-top: 0.15rem;
         }
 
-        /* ---------- Puntos de progreso (tipo stories) ---------- */
         .dots-container {
             display: flex;
             gap: 6px;
@@ -281,7 +265,6 @@ def inyectar_css():
             background: linear-gradient(90deg, #FF3E7F, #FFC857);
         }
 
-        /* ---------- Filas de canciones (playlist) ---------- */
         .track-row {
             display: flex;
             gap: 0.9rem;
@@ -313,7 +296,6 @@ def inyectar_css():
             line-height: 1.5;
         }
 
-        /* ---------- Tarjetas de restaurante (ticket) ---------- */
         .food-card {
             background: rgba(255,255,255,0.045);
             border: 1px solid rgba(255,255,255,0.08);
@@ -328,7 +310,6 @@ def inyectar_css():
         .food-name { font-weight: 700; font-size: 1.02rem; margin-bottom: 0.15rem; }
         .food-note { font-size: 0.9rem; color: #B8AEC4; line-height: 1.5; }
 
-        /* ---------- Botones de Streamlit ---------- */
         div[data-testid="stButton"] > button {
             border-radius: 999px;
             border: none;
@@ -390,8 +371,6 @@ def anecdota(texto, color="rgba(255,255,255,0.25)"):
 
 
 def mostrar_foto(rutas, caption=""):
-    """Muestra la primera foto válida de la lista; si ninguna existe,
-    muestra un placeholder para que la app jamás se rompa por fotos faltantes."""
     if isinstance(rutas, str):
         rutas = [rutas]
     for ruta in rutas:
@@ -439,7 +418,7 @@ def dias_para_aniversario():
 
 
 # =============================================================================
-# PANTALLAS
+# PANTALLAS (Redactadas de tú a tú / primera persona)
 # =============================================================================
 
 def slide_portada():
@@ -492,10 +471,10 @@ def slide_inicio():
     c1, _ = ACENTOS["inicio"]
     encabezado("💬", "El inicio de todo", "24 de julio de 2023")
     anecdota(
-        "Todo comenzó con una historia suya: si yo reaccionaba, ella me escribía. "
-        "Le contesté... y minutos después borró la historia porque, según ella, "
+        "Todo comenzó con una historia tuya: decías que si reaccionaba, me mandabas mensaje. "
+        "Te contesté... y minutos después borraste la historia porque, según tú, "
         "&ldquo;solo iba para mí&rdquo; (jsjsjs). Así, sin planearlo, empezamos a hablar "
-        "todos los días durante los siguientes tres meses hasta conocernos en persona.",
+        "todos los días durante tres meses hasta que logramos formalizar.",
         color=c1,
     )
     mostrar_foto(IMAGENES["inicio"], caption="La captura que lo comenzó todo 📱")
@@ -505,10 +484,10 @@ def slide_caifanes():
     c1, _ = ACENTOS["caifanes"]
     encabezado("🎸", "La primera gran aventura", "Concierto de Caifanes")
     anecdota(
-        "Caifanes es su banda favorita, y cuando supe que iba a ir sola al concierto "
-        "no lo pensé dos veces: moví cielo, mar y tierra para conseguir el dinero y no "
-        "dejarla ir sin mí. Esa noche cantamos cada canción como si el mundo se hubiera "
-        "detenido solo para nosotros.",
+        "Caifanes es tu banda favorita, y cuando supe que ibas a ir sola al concierto "
+        "no lo pensé dos veces: hice hasta lo imposible y moví cielo, mar y tierra para "
+        "conseguir dinero y acompañarte. Esa noche cantaste cada canción como si el mundo "
+        "se hubiera detenido solo para ti.",
         color=c1,
     )
     mostrar_foto(IMAGENES["caifanes"], caption="En el concierto de Caifanes 🎶")
@@ -518,22 +497,21 @@ def slide_diciembre_2023():
     c1, _ = ACENTOS["diciembre_2023"]
     encabezado("🚐", "Diciembre 2023", "El viaje que lo cambió todo")
     anecdota(
-        "Renunciamos a nuestros trabajos —yo en Superette, ella en Del Río— para "
-        "lanzarnos a un viaje con mi familia al pueblo de mi papá. Ahí conoció a todos "
-        "y se acopló como si siempre hubiera sido parte de la familia: cocinando, "
-        "rompiendo piñata, riendo sin parar.",
+        "Renunciamos a nuestros trabajos —yo en Superette, tú en Del Río— para "
+        "lanzarnos a un viaje con mi familia al pueblo de mi papá. Ahí conociste a todos "
+        "y te acoplaste durísimo: cocinando, rompiendo la piñata, riendo sin parar.",
         color=c1,
     )
     anecdota(
         "Después de la feria pasó algo bastante vergonzoso (jsjsjs), y ahí quedó "
-        "clarísimo: por ella no me tiembla la mano para lavar, para ayudar, para "
-        "hacer lo que sea que necesite.",
+        "clarísimo: por ti no me tiembla la mano para lavar, para hacer lo que sea, "
+        "ni para ayudarte en lo que necesites.",
         color=c1,
     )
     anecdota(
-        "De regreso paramos en Mazatlán, compartimos habitación y vivimos experiencias "
-        "increíbles. Una noche íbamos muy rápido en la carretera, ella abrió la ventana "
-        "y mi papá la regañó... con el tiempo entendimos que no fue con mala intención, jaja.",
+        "De regreso fuimos a Mazatlán, compartimos habitación y vivimos experiencias "
+        "increíbles. Una noche íbamos muy rápido en la carretera, abriste la ventana "
+        "y mi papá te regañó... con el tiempo entendimos que no fue de mal plan, jaja.",
         color=c1,
     )
     cols = st.columns(3)
@@ -546,33 +524,33 @@ def slide_2024():
     c1, _ = ACENTOS["y2024"]
     encabezado("🌙", "2024", "Togas, motos y los hijos de la luna")
     anecdota(
-        "Junto con mi mamá emprendimos en la venta y renta de togas, estolas y "
-        "birretes, además de camisetas personalizadas para SHESPAT.",
+        "Empezamos a trabajar juntos con mi mamá en la venta y renta de togas, estolas "
+        "y birretes, además de las camisetas personalizadas para SHESPAT.",
         color=c1,
     )
     anecdota(
-        "Conseguí mi moto y ella me enseñó a manejarla como se debe. Verla con el "
-        "casco puesto me daba tanta risa como ternura.",
+        "Conseguí mi moto y fuiste tú quien me enseñó la manera correcta de manejar. "
+        "Me daba tanta risa como ternura verte con el casco puesto (¡cómo te amo!).",
         color=c1,
     )
     anecdota(
-        "Me ayudó a vestirme mejor y a cuidar mi cabello: antes lo llevaba liso, y "
-        "gracias a ella descubrí que ondulado me quedaba precioso.",
+        "Me ayudaste a vestirme mejor y a arreglarme el cabello: antes lo tenía liso, y "
+        "con tu ayuda se me hizo ondulado muy bonito.",
         color=c1,
     )
     anecdota(
-        "Fuimos juntos a la boda de la amiga de su mamá, donde se veía preciosa, y "
-        "en Halloween nos pintamos la cara para ir al Parque Central.",
+        "Fuimos a la boda de la amiga de tu mamá —donde te veías preciosa— y pasamos "
+        "Halloween pintándonos la cara para ir al Parque Central porque no teníamos disfraz.",
         color=c1,
     )
     anecdota(
-        "Entramos a trabajar juntos al tercer turno en Commscope, convertidos "
-        "oficialmente en los &ldquo;hijos de la luna&rdquo; 🌙.",
+        "Entramos a trabajar juntos a Commscope, convirtiéndonos en los "
+        "&ldquo;hijos de la luna&rdquo; al estar en el tercer turno 🌙.",
         color=c1,
     )
     anecdota(
-        "Pasamos nuestra primera Navidad juntos en su casa: intercambio de regalos "
-        "y estrenamos nuestras botas.",
+        "Pasamos nuestra primera Navidad en tu casa, con intercambio de regalos "
+        "y estrenando nuestras botas.",
         color=c1,
     )
     cols = st.columns(4)
@@ -585,20 +563,18 @@ def slide_2025_2026():
     c1, _ = ACENTOS["y2025_2026"]
     encabezado("🐰", "2025 y 2026", "Madurez, conejitos y nuevos looks")
     anecdota(
-        "Iniciamos el 2025 en el cumpleaños de mi papá, a quien le regalamos un "
-        "reloj que le encantó. Tuvimos salidas llenas de momentos especiales —orejitas "
-        "de conejo, el cuarto de luces— y en cada foto se ve más hermosa.",
+        "Iniciamos el 2025 en el cumpleaños de mi papá, a quien ambos fuimos a comprarle "
+        "un reloj que le encantó. Tuvimos muchísimas salidas, y en cada foto te ves increíble.",
         color=c1,
     )
     anecdota(
-        "En 2026 empezamos el año arreglándonos juntos para lo que venía. Le "
-        "regalaron a Carajo y Nena, nuestros conejitos —sí, nuestros hijos 🐰.",
+        "En 2026 empezamos el año arreglándonos juntos para lo nuevo. Este año te regalaron "
+        "a tus conejitos (nuestros hijos, Carajo y Nena) 🐰.",
         color=c1,
     )
     anecdota(
-        "Se hizo un cambio radical de look con cabello azul turquesa que le queda "
-        "perfecto. Y vivimos una salida inolvidable a la feria, con esa foto icónica "
-        "frente a la rueda de la fortuna.",
+        "Tuviste un cambio radical de look con tu cabello azul turquesa que te queda perfecto. "
+        "Y tenemos muy marcada nuestra salida a la feria, con esa foto icónica frente a la rueda de la fortuna.",
         color=c1,
     )
     cols = st.columns(3)
@@ -690,11 +666,10 @@ def slide_cierre():
         unsafe_allow_html=True,
     )
     anecdota(
-        "De una historia que se borró a los tres meses de mensajes, a un concierto, "
-        "a un viaje que nos cambió, a ser &ldquo;hijos de la luna&rdquo;, a dos conejitos "
-        "que ahora son nuestros hijos. Eres mi camino, mi hogar, mi guía, mi todo. "
-        "Gracias por elegirme cada día, por quedarte, por seguir construyendo esto conmigo. "
-        "Que vengan muchos años más. Feliz aniversario. 💫",
+        "De una historia que se borró al instante a un concierto, a un viaje que nos marcó, "
+        "a ser &ldquo;hijos de la luna&rdquo; y cuidar a nuestros conejitos. Eres mi camino, "
+        "mi hogar, mi guía, mi todo. Gracias por elegirme cada día, por quedarte y por seguir "
+        "construyendo esto juntos. Que vengan muchísimos años más. Te amo con toda mi alma, mi niña preciosa. 💫",
         color=c1,
     )
     st.markdown(

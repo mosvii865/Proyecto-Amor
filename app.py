@@ -83,13 +83,12 @@ ACENTOS = {
 # Canciones clave con reproductor incrustado (IDs tomados de tus enlaces de YouTube Music).
 CANCIONES = [
     {
-        "titulo": "Time to Love (Tiempo para Amarte)",
+        "titulo": "Tiempo para Amarte",
         "artista": "Laureano Brizuela",
         "significado": (
             "A pesar de las cuentas y el estrés diario, siempre quiero guardar tiempo "
             "para amarte otra vez, para que nos amemos y sigamos juntos para siempre."
         ),
-        "video_id": "fue4mYwJjeU",
     },
     {
         "titulo": "My One and Only Love / They Say It's Wonderful",
@@ -98,7 +97,6 @@ CANCIONES = [
             "Mi descubrimiento personal del amor: el paso de escuchar hablar de él a "
             "sentirlo por primera vez, contigo. Me hiciste experimentar un amor muy bonito."
         ),
-        "video_id": "qA_vm6NpSZY",
     },
     {
         "titulo": "I Only Have Eyes for You",
@@ -110,13 +108,11 @@ CANCIONES = [
         "titulo": "Eso y Más",
         "artista": "Joan Sebastián",
         "significado": "No importa qué, haría lo que sea e incluso más por ti.",
-        "video_id": "kz_HWReUrFA",
     },
     {
         "titulo": "Diséñame",
         "artista": "Joan Sebastián",
         "significado": "Como 'Eso y Más', me recuerda que no hay límite para lo que haría por ti.",
-        "video_id": None,
     },
     {
         "titulo": "The Nearness of You",

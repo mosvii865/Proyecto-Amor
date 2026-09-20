@@ -5,7 +5,7 @@ import streamlit.components.v1 as components
 
 
 # ============================================================
-# CONFIGURACIÓN
+# CONFIGURACIÓN Y RUTAS ABSOLUTAS
 # ============================================================
 
 st.set_page_config(
@@ -15,11 +15,124 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-FOTOS_DIR = "fotos"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FOTOS_DIR = os.path.join(BASE_DIR, "fotos")
 GALERIA_DIR = os.path.join(FOTOS_DIR, "galeria")
+MUSICA_FONDO = os.path.join(BASE_DIR, "musica.mp3")
 
-# musica.mp3 está en la carpeta principal junto a app.py
-MUSICA_FONDO = "musica.mp3"
+
+# ============================================================
+# HTML SEGURO PARA st.markdown
+# ============================================================
+
+def render_html(html: str):
+    """
+    Renderiza HTML/CSS con st.markdown sin que Markdown lo rompa.
+    Quita la sangría y líneas vacías para evitar bloques de código.
+    """
+    limpio = "\n".join(
+        linea.strip() for linea in html.splitlines() if linea.strip()
+    )
+    st.markdown(limpio, unsafe_allow_html=True)
+
+
+# ============================================================
+# MÚSICA DE FONDO (Optimizada y persistente)
+# ============================================================
+
+@st.cache_data(show_spinner=False)
+def _audio_base64(ruta: str) -> str:
+    with open(ruta, "rb") as archivo:
+        return base64.b64encode(archivo.read()).decode("utf-8")
+
+
+_HTML_MUSICA = """<!DOCTYPE html>
+<html>
+<head>
+<style>
+html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+</style>
+</head>
+<body>
+<script>
+(function () {
+  var AUDIO_ID = "nuestroWrappedMusic";
+  var B64 = "__B64__";
+  var EVENTOS = ["click", "touchend", "pointerup", "keydown"];
+
+  var P = window.parent;
+  var host;
+  try { host = P.document; } catch (e) { return; }
+
+  try {
+    var cont = window.frameElement.closest(
+      '[data-testid="stElementContainer"], .stElementContainer, .element-container'
+    );
+    if (cont) cont.style.display = "none";
+  } catch (e) {}
+
+  var audio = host.getElementById(AUDIO_ID);
+  if (!audio) {
+    var bin = atob(B64);
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    var url = P.URL.createObjectURL(new P.Blob([bytes], { type: "audio/mpeg" }));
+
+    audio = host.createElement("audio");
+    audio.id = AUDIO_ID;
+    audio.src = url;
+    audio.loop = true;
+    audio.preload = "auto";
+    audio.volume = 0.28;
+    audio.style.display = "none";
+    host.body.appendChild(audio);
+  }
+
+  if (!audio.paused) return;
+
+  function quitarListeners(fn) {
+    EVENTOS.forEach(function (ev) {
+      try { host.removeEventListener(ev, fn, true); } catch (err) {}
+    });
+  }
+
+  function desbloquear() {
+    var p = audio.play();
+    if (p && p.then) {
+      p.then(function () { quitarListeners(desbloquear); })
+       .catch(function () {});
+    }
+  }
+
+  if (P.__wrappedUnlock) quitarListeners(P.__wrappedUnlock);
+  P.__wrappedUnlock = desbloquear;
+
+  EVENTOS.forEach(function (ev) {
+    host.addEventListener(ev, desbloquear, true);
+  });
+
+  desbloquear();
+})();
+</script>
+</body>
+</html>
+"""
+
+
+def musica_fondo():
+    if not os.path.exists(MUSICA_FONDO):
+        return
+
+    try:
+        audio_b64 = _audio_base64(MUSICA_FONDO)
+    except Exception:
+        return
+
+    components.html(
+        _HTML_MUSICA.replace("__B64__", audio_b64),
+        height=1,
+        scrolling=False,
+    )
 
 
 # ============================================================
@@ -217,11 +330,8 @@ RESTAURANTES = [
 # ============================================================
 
 def inyectar_css():
-
-    st.markdown(
-        """
+    render_html("""
         <style>
-
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;500;600;700&display=swap');
 
         html, body, [class*="css"] {
@@ -230,29 +340,13 @@ def inyectar_css():
 
         .stApp {
             background:
-                radial-gradient(
-                    circle at 20% 10%,
-                    rgba(255, 62, 127, 0.20),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 90% 20%,
-                    rgba(140, 82, 255, 0.18),
-                    transparent 30%
-                ),
-                linear-gradient(
-                    145deg,
-                    #100718 0%,
-                    #19091f 45%,
-                    #0d0615 100%
-                );
-
+                radial-gradient(circle at 20% 10%, rgba(255, 62, 127, 0.20), transparent 30%),
+                radial-gradient(circle at 90% 20%, rgba(140, 82, 255, 0.18), transparent 30%),
+                linear-gradient(145deg, #100718 0%, #19091f 45%, #0d0615 100%);
             color: #ffffff;
         }
 
-        header,
-        footer,
-        #MainMenu {
+        header, footer, #MainMenu {
             visibility: hidden;
         }
 
@@ -282,14 +376,7 @@ def inyectar_css():
             line-height: 1.05;
             font-weight: 700;
             margin: 0;
-
-            background: linear-gradient(
-                90deg,
-                #FF3E7F,
-                #FFC857,
-                #8C52FF
-            );
-
+            background: linear-gradient(90deg, #FF3E7F, #FFC857, #8C52FF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -386,11 +473,7 @@ def inyectar_css():
         .anecdote {
             padding: 1.1rem 1.2rem;
             border-radius: 20px;
-            background: linear-gradient(
-                135deg,
-                rgba(255,255,255,0.07),
-                rgba(255,255,255,0.025)
-            );
+            background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025));
             border: 1px solid rgba(255,255,255,0.07);
             margin: 0.8rem 0;
         }
@@ -484,11 +567,7 @@ def inyectar_css():
         .dot.active {
             width: 24px;
             border-radius: 20px;
-            background: linear-gradient(
-                90deg,
-                #FF3E7F,
-                #8C52FF
-            );
+            background: linear-gradient(90deg, #FF3E7F, #8C52FF);
         }
 
         .love-message {
@@ -497,14 +576,7 @@ def inyectar_css():
             font-size: clamp(1.4rem, 5vw, 2.2rem);
             line-height: 1.45;
             margin: 2rem 0;
-
-            background: linear-gradient(
-                90deg,
-                #FF3E7F,
-                #FFC857,
-                #8C52FF
-            );
-
+            background: linear-gradient(90deg, #FF3E7F, #FFC857, #8C52FF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -529,347 +601,44 @@ def inyectar_css():
         [data-testid="stSidebar"] {
             background: #100718;
         }
-
         </style>
-        """,
-        unsafe_allow_html=True
-    )
+    """)
 
 
 # ============================================================
-# MÚSICA DE FONDO
-# ============================================================
-
-def musica_fondo():
-
-    """
-    Reproduce musica.mp3 desde la carpeta principal.
-
-    El reproductor permanece visualmente oculto.
-    La posición se guarda en localStorage del navegador
-    para poder continuar aproximadamente desde donde iba
-    después de cambiar de diapositiva.
-    """
-
-    if not os.path.exists(MUSICA_FONDO):
-        return
-
-    try:
-        with open(MUSICA_FONDO, "rb") as archivo:
-            audio_data = base64.b64encode(
-                archivo.read()
-            ).decode("utf-8")
-    except Exception:
-        return
-
-    html_musica = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <style>
-            html, body {{
-                margin: 0;
-                padding: 0;
-                width: 1px;
-                height: 1px;
-                overflow: hidden;
-                background: transparent;
-            }}
-
-            audio {{
-                display: none !important;
-                width: 0 !important;
-                height: 0 !important;
-            }}
-        </style>
-    </head>
-
-    <body>
-
-        <audio id="wrappedMusic" loop preload="auto">
-            <source
-                src="data:audio/mpeg;base64,{audio_data}"
-                type="audio/mpeg"
-            >
-        </audio>
-
-        <script>
-
-        const AUDIO_KEY = "nuestro_wrapped_music_time";
-        const PLAYING_KEY = "nuestro_wrapped_music_playing";
-
-        const audio = document.getElementById("wrappedMusic");
-
-        audio.volume = 0.28;
-
-        // ====================================================
-        // RECUPERAR POSICIÓN
-        // ====================================================
-
-        function recuperarPosicion() {{
-
-            const tiempoGuardado =
-                parseFloat(
-                    localStorage.getItem(AUDIO_KEY) || "0"
-                );
-
-            if (
-                Number.isFinite(tiempoGuardado) &&
-                tiempoGuardado > 0 &&
-                tiempoGuardado < audio.duration
-            ) {{
-                try {{
-                    audio.currentTime = tiempoGuardado;
-                }} catch(e) {{}}
-            }}
-        }}
-
-
-        // ====================================================
-        // REPRODUCIR
-        // ====================================================
-
-        function intentarReproducir() {{
-
-            audio.play().then(() => {{
-
-                localStorage.setItem(
-                    PLAYING_KEY,
-                    "1"
-                );
-
-            }}).catch(() => {{
-
-                // El navegador puede bloquear autoplay.
-                // Se intentará nuevamente al tocar la pantalla.
-
-            }});
-        }}
-
-
-        // ====================================================
-        // METADATA
-        // ====================================================
-
-        audio.addEventListener(
-            "loadedmetadata",
-            () => {{
-
-                recuperarPosicion();
-
-                if (
-                    localStorage.getItem(PLAYING_KEY) === "1"
-                ) {{
-                    intentarReproducir();
-                }}
-            }}
-        );
-
-
-        // ====================================================
-        // GUARDAR TIEMPO
-        // ====================================================
-
-        setInterval(() => {{
-
-            if (!audio.paused) {{
-
-                localStorage.setItem(
-                    AUDIO_KEY,
-                    String(audio.currentTime)
-                );
-            }}
-
-        }}, 500);
-
-
-        // ====================================================
-        // ESTADO DE REPRODUCCIÓN
-        // ====================================================
-
-        audio.addEventListener(
-            "play",
-            () => {{
-
-                localStorage.setItem(
-                    PLAYING_KEY,
-                    "1"
-                );
-            }}
-        );
-
-
-        audio.addEventListener(
-            "pause",
-            () => {{
-
-                localStorage.setItem(
-                    PLAYING_KEY,
-                    "0"
-                );
-
-                localStorage.setItem(
-                    AUDIO_KEY,
-                    String(audio.currentTime)
-                );
-            }}
-        );
-
-
-        // ====================================================
-        // GUARDAR ANTES DE CERRAR
-        // ====================================================
-
-        window.addEventListener(
-            "beforeunload",
-            () => {{
-
-                localStorage.setItem(
-                    AUDIO_KEY,
-                    String(audio.currentTime)
-                );
-            }}
-        );
-
-
-        // ====================================================
-        // PRIMER TOQUE
-        // ====================================================
-
-        document.addEventListener(
-            "click",
-            () => {{
-
-                intentarReproducir();
-
-            }},
-            {{ once: true }}
-        );
-
-
-        document.addEventListener(
-            "touchstart",
-            () => {{
-
-                intentarReproducir();
-
-            }},
-            {{ once: true }}
-        );
-
-        </script>
-
-    </body>
-    </html>
-    """
-
-    # IMPORTANTE:
-    # El componente tiene un tamaño mínimo y completamente invisible.
-    components.html(
-        html_musica,
-        height=1,
-        width=1,
-        scrolling=False
-    )
-
-
-# ============================================================
-# ENCABEZADO
+# ENCABEZADO Y COMPONENTES
 # ============================================================
 
 def encabezado(titulo, subtitulo=None, seccion=None):
-
     if seccion:
-
-        st.markdown(
-            f'<div class="date">{seccion}</div>',
-            unsafe_allow_html=True
-        )
-
-    st.markdown(
-        f'<div class="section-title">{titulo}</div>',
-        unsafe_allow_html=True
-    )
-
+        render_html(f'<div class="date">{seccion}</div>')
+    render_html(f'<div class="section-title">{titulo}</div>')
     if subtitulo:
+        render_html(f'<div class="section-subtitle">{subtitulo}</div>')
 
-        st.markdown(
-            f'<div class="section-subtitle">{subtitulo}</div>',
-            unsafe_allow_html=True
-        )
-
-
-# ============================================================
-# ANÉCDOTA
-# ============================================================
 
 def anecdota(titulo, texto):
-
-    st.markdown(
-        f"""
+    render_html(f"""
         <div class="anecdote">
-
-            <div class="anecdote-title">
-                {titulo}
-            </div>
-
-            <div class="anecdote-text">
-                {texto}
-            </div>
-
+            <div class="anecdote-title">{titulo}</div>
+            <div class="anecdote-text">{texto}</div>
         </div>
-        """,
-        unsafe_allow_html=True
-    )
+    """)
 
-
-# ============================================================
-# MOSTRAR FOTO
-# ============================================================
 
 def mostrar_foto(ruta, caption=None):
-
     if not ruta or not os.path.exists(ruta):
-
-        st.warning(
-            f"No se encontró la imagen: {ruta}"
-        )
-
+        st.warning(f"No se encontró la imagen: {ruta}")
         return
 
-    st.markdown(
-        '<div class="photo-card">',
-        unsafe_allow_html=True
-    )
-
-    st.image(
-        ruta,
-        width="stretch"
-    )
-
+    render_html('<div class="photo-card">')
+    st.image(ruta, width="stretch")
     if caption:
-
-        st.markdown(
-            f'<div class="photo-caption">{caption}</div>',
-            unsafe_allow_html=True
-        )
-
-    st.markdown(
-        '</div>',
-        unsafe_allow_html=True
-    )
+        render_html(f'<div class="photo-caption">{caption}</div>')
+    render_html('</div>')
 
 
-# ============================================================
-# CARRUSEL
-# ============================================================
-
-def carrusel_fotos(
-    fotos,
-    captions=None,
-    key_prefix="carousel"
-):
-
+def carrusel_fotos(fotos, captions=None, key_prefix="carousel"):
     if not fotos:
         return
 
@@ -877,815 +646,254 @@ def carrusel_fotos(
         captions = [""] * len(fotos)
 
     key = f"{key_prefix}_index"
-
     if key not in st.session_state:
         st.session_state[key] = 0
 
     indice = st.session_state[key]
+    indice = max(0, min(indice, len(fotos) - 1))
 
-    indice = max(
-        0,
-        min(indice, len(fotos) - 1)
-    )
+    mostrar_foto(fotos[indice], captions[indice])
 
-    mostrar_foto(
-        fotos[indice],
-        captions[indice]
-    )
-
-    col1, col2, col3 = st.columns(
-        [1, 2, 1]
-    )
-
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
-
-        if st.button(
-            "‹",
-            key=f"{key_prefix}_prev",
-            use_container_width=True
-        ):
-
-            st.session_state[key] = (
-                indice - 1
-            ) % len(fotos)
-
+        if st.button("‹", key=f"{key_prefix}_prev", use_container_width=True):
+            st.session_state[key] = (indice - 1) % len(fotos)
             st.rerun()
-
     with col2:
-
-        st.markdown(
-            f"""
-            <div style="
-                text-align:center;
-                color:rgba(255,255,255,0.45);
-                padding-top:10px;
-                font-size:0.75rem;
-            ">
+        render_html(f"""
+            <div style="text-align:center;color:rgba(255,255,255,0.45);padding-top:10px;font-size:0.75rem;">
                 {indice + 1} / {len(fotos)}
             </div>
-            """,
-            unsafe_allow_html=True
-        )
-
+        """)
     with col3:
-
-        if st.button(
-            "›",
-            key=f"{key_prefix}_next",
-            use_container_width=True
-        ):
-
-            st.session_state[key] = (
-                indice + 1
-            ) % len(fotos)
-
+        if st.button("›", key=f"{key_prefix}_next", use_container_width=True):
+            st.session_state[key] = (indice + 1) % len(fotos)
             st.rerun()
 
 
-# ============================================================
-# GALERÍA
-# ============================================================
-
 def galeria_paginada():
-
     if not os.path.exists(GALERIA_DIR):
         return
 
-    extensiones = (
-        ".png",
-        ".jpg",
-        ".jpeg",
-        ".webp"
-    )
-
+    extensiones = (".png", ".jpg", ".jpeg", ".webp")
     fotos = [
-        os.path.join(
-            GALERIA_DIR,
-            archivo
-        )
-
-        for archivo in sorted(
-            os.listdir(GALERIA_DIR)
-        )
-
-        if archivo.lower().endswith(
-            extensiones
-        )
+        os.path.join(GALERIA_DIR, archivo)
+        for archivo in sorted(os.listdir(GALERIA_DIR))
+        if archivo.lower().endswith(extensiones)
     ]
 
     if not fotos:
         return
 
     key = "galeria_index"
-
     if key not in st.session_state:
         st.session_state[key] = 0
 
     indice = st.session_state[key]
+    indice = max(0, min(indice, len(fotos) - 1))
 
-    indice = max(
-        0,
-        min(indice, len(fotos) - 1)
-    )
+    mostrar_foto(fotos[indice])
 
-    mostrar_foto(
-        fotos[indice]
-    )
-
-    col1, col2, col3 = st.columns(
-        [1, 2, 1]
-    )
-
+    col1, col2, col3 = st.columns([1, 2, 1])
     with col1:
-
-        if st.button(
-            "‹",
-            key="galeria_prev",
-            use_container_width=True
-        ):
-
-            st.session_state[key] = (
-                indice - 1
-            ) % len(fotos)
-
+        if st.button("‹", key="galeria_prev", use_container_width=True):
+            st.session_state[key] = (indice - 1) % len(fotos)
             st.rerun()
-
     with col2:
-
-        st.markdown(
-            f"""
-            <div style="
-                text-align:center;
-                color:rgba(255,255,255,0.45);
-                padding-top:10px;
-                font-size:0.75rem;
-            ">
+        render_html(f"""
+            <div style="text-align:center;color:rgba(255,255,255,0.45);padding-top:10px;font-size:0.75rem;">
                 {indice + 1} / {len(fotos)}
             </div>
-            """,
-            unsafe_allow_html=True
-        )
-
+        """)
     with col3:
-
-        if st.button(
-            "›",
-            key="galeria_next",
-            use_container_width=True
-        ):
-
-            st.session_state[key] = (
-                indice + 1
-            ) % len(fotos)
-
+        if st.button("›", key="galeria_next", use_container_width=True):
+            st.session_state[key] = (indice + 1) % len(fotos)
             st.rerun()
 
 
-# ============================================================
-# DÍAS PARA ANIVERSARIO
-# ============================================================
-
 def dias_para_aniversario():
-
     import datetime
-
     hoy = datetime.date.today()
-
-    aniversario = datetime.date(
-        hoy.year,
-        9,
-        23
-    )
-
+    aniversario = datetime.date(hoy.year, 9, 23)
     if aniversario < hoy:
-
-        aniversario = datetime.date(
-            hoy.year + 1,
-            9,
-            23
-        )
-
-    return (
-        aniversario - hoy
-    ).days
-
-
-# ============================================================
-# SLIDE 1 — PORTADA
-# ============================================================
-
-def slide_portada():
-
-    st.markdown(
-        """
-        <div class="hero">
-
-            <div class="eyebrow">
-                NUESTRO WRAPPED 💫
-            </div>
-
-            <div class="title">
-                3 Años Juntos
-            </div>
-
-            <div class="subtitle">
-                Una pequeña recopilación de nuestra historia,
-                nuestras canciones, nuestros lugares y todos
-                esos momentos que hicieron estos años tan especiales.
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        """
-        <div class="stats">
-
-            <div class="stat">
-                <div class="stat-number">3</div>
-                <div class="stat-label">AÑOS JUNTOS</div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-number">11</div>
-                <div class="stat-label">CANCIONES</div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-number">3</div>
-                <div class="stat-label">LUGARES FAVORITOS</div>
-            </div>
-
-            <div class="stat">
-                <div class="stat-number">2</div>
-                <div class="stat-label">CONEJITOS 🐰</div>
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    portada = os.path.join(
-        FOTOS_DIR,
-        "portada.png"
-    )
-
-    if os.path.exists(portada):
-
-        mostrar_foto(portada)
-
-    st.markdown(
-        """
-        <div class="quote">
-
-            Tres años pueden parecer solamente un número,
-            pero cuando los llenas de recuerdos, personas,
-            lugares, canciones y momentos, se convierten
-            en una historia.
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    if st.button(
-        "Comenzar el recorrido ▶",
-        key="comenzar",
-        use_container_width=True
-    ):
-
-        st.session_state.slide = 1
-
-        st.rerun()
-
-
-# ============================================================
-# SLIDE 2 — INICIO
-# ============================================================
-
-def slide_inicio():
-
-    encabezado(
-        "El inicio de todo",
-        "La historia comenzó el 24 de julio de 2023.",
-        "24 · 07 · 2023"
-    )
-
-    st.markdown(
-        """
-        <div class="story">
-
-        Hay fechas que terminan convirtiéndose
-        en algo mucho más grande de lo que imaginábamos.
-
-        <br><br>
-
-        El 24 de julio de 2023 comenzó nuestra historia.
-        Desde ese momento empezamos a crear recuerdos,
-        aprender uno del otro y descubrir todo lo que
-        podíamos vivir juntos.
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    mostrar_foto(
-        FOTOS["inicio"],
-        "Aquí comenzó una parte muy importante de nuestra historia ❤️"
-    )
-
-
-# ============================================================
-# SLIDE 3 — CAIFANES
-# ============================================================
-
-def slide_caifanes():
-
-    encabezado(
-        "Nuestro concierto de Caifanes",
-        "Una noche que terminó convirtiéndose en uno de nuestros recuerdos.",
-        "CAIFANES 🎸"
-    )
-
-    st.markdown(
-        """
-        <div class="story">
-
-        Entre música, gente y emoción vivimos una de esas
-        noches que se quedan guardadas.
-
-        <br><br>
-
-        Porque no solamente importa a dónde vamos,
-        sino con quién compartimos el momento.
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    mostrar_foto(
-        FOTOS["caifanes"],
-        "Una noche para recordar 🎸❤️"
-    )
-
-
-# ============================================================
-# SLIDE 4 — DICIEMBRE 2023
-# ============================================================
-
-def slide_diciembre_2023():
-
-    encabezado(
-        "Diciembre 2023",
-        "Nuestro primer diciembre lleno de recuerdos.",
-        "DICIEMBRE · 2023"
-    )
-
-    anecdota(
-        "🏡 El pueblo de mi papá",
-        "Un lugar diferente, pero mucho más especial porque estabas conmigo."
-    )
-
-    anecdota(
-        "🎉 La piñata",
-        "Compartiendo momentos sencillos que terminaron convirtiéndose en recuerdos."
-    )
-
-    anecdota(
-        "🌊 Rumbo a Mazatlán",
-        "Una aventura más de tantas que hemos ido sumando a nuestra historia."
-    )
-
-    carrusel_fotos(
-        FOTOS["diciembre_2023"],
-        CAPTIONS["diciembre_2023"],
-        "diciembre"
-    )
-
-
-# ============================================================
-# SLIDE 5 — 2024
-# ============================================================
-
-def slide_2024():
-
-    encabezado(
-        "2024",
-        "Un año lleno de cambios, proyectos y momentos juntos.",
-        "2024"
-    )
-
-    anecdota(
-        "🎓 SHESPAT",
-        "Emprendiendo juntos con las togas y estolas SHESPAT."
-    )
-
-    anecdota(
-        "🏍️ La moto",
-        "Ese momento en el que empezaste a enseñarme a manejar."
-    )
-
-    anecdota(
-        "💇 Mi cambio de look",
-        "Gracias a ti también llegaron nuevos cambios y nuevas versiones de mí."
-    )
-
-    anecdota(
-        "🎄 Nuestra primera Navidad",
-        "Nuestra primera Navidad juntos, creando una tradición propia."
-    )
-
-    carrusel_fotos(
-        FOTOS["y2024"],
-        CAPTIONS["y2024"],
-        "y2024"
-    )
-
-
-# ============================================================
-# SLIDE 6 — 2025 / 2026
-# ============================================================
-
-def slide_2025_2026():
-
-    encabezado(
-        "2025 · 2026",
-        "Seguimos acumulando recuerdos.",
-        "NUEVOS RECUERDOS"
-    )
-
-    anecdota(
-        "🎁 El reloj para mi papá",
-        "Un detalle que terminó convirtiéndose en otro recuerdo de nuestra historia."
-    )
-
-    anecdota(
-        "🐰 Carajo y Nena",
-        "Nuestros conejitos y dos pequeños integrantes de nuestra historia."
-    )
-
-    anecdota(
-        "🎡 La feria",
-        "La feria, la rueda de la fortuna y otra aventura juntos."
-    )
-
-    carrusel_fotos(
-        FOTOS["y2025_2026"],
-        CAPTIONS["y2025_2026"],
-        "y2025_2026"
-    )
-
-
-# ============================================================
-# SLIDE 7 — GASTRONOMÍA
-# ============================================================
-
-def slide_gastronomia():
-
-    encabezado(
-        "También hemos comido juntos",
-        "Porque una relación también se construye alrededor de una mesa.",
-        "NUESTROS LUGARES 🍜"
-    )
-
-    for restaurante in RESTAURANTES:
-
-        st.markdown(
-            f"""
-            <div class="restaurant">
-
-                <div class="restaurant-name">
-                    {restaurante["nombre"]}
-                </div>
-
-                <div class="restaurant-description">
-                    {restaurante["descripcion"]}
-                </div>
-
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    st.markdown(
-        """
-        <div class="quote">
-
-        Al final, muchos de nuestros recuerdos favoritos
-        también tienen algo en común:
-        comida, plática y nosotros dos.
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# SLIDE 8 — PLAYLIST
-# ============================================================
-
-def slide_playlist():
-
-    encabezado(
-        "Nuestra banda sonora",
-        "11 canciones que, de una u otra manera, forman parte de nuestra historia.",
-        "NUESTRA PLAYLIST 🎵"
-    )
-
-    for indice, cancion in enumerate(
-        CANCIONES,
-        start=1
-    ):
-
-        st.markdown(
-            f"""
-            <div class="track">
-
-                <div class="track-number">
-                    #{indice:02d}
-                </div>
-
-                <div class="track-title">
-                    {cancion["titulo"]}
-                </div>
-
-                <div class="track-artist">
-                    {cancion["artista"]}
-                </div>
-
-                <div class="track-meaning">
-                    {cancion["significado"]}
-                </div>
-
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
-# ============================================================
-# SLIDE 9 — GALERÍA
-# ============================================================
-
-def slide_galeria():
-
-    encabezado(
-        "Galería de recuerdos",
-        "Una colección de pequeños momentos que queremos conservar.",
-        "NUESTROS RECUERDOS 📸"
-    )
-
-    galeria_paginada()
-
-
-# ============================================================
-# SLIDE 10 — CIERRE
-# ============================================================
-
-def slide_cierre():
-
-    dias = dias_para_aniversario()
-
-    st.markdown(
-        """
-        <div class="hero">
-
-            <div class="eyebrow">
-                Y ESTO APENAS ES UNA PARTE
-            </div>
-
-            <div class="love-message">
-                Gracias por estos<br>
-                3 años ❤️
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        """
-        <div class="story">
-
-        Hemos cambiado, aprendido, reído, salido,
-        comido, viajado y vivido muchas cosas juntos.
-
-        <br><br>
-
-        Y aunque este Wrapped solamente puede guardar
-        algunas fotografías y canciones, nuestra historia
-        tiene muchísimos más momentos.
-
-        <br><br>
-
-        Gracias por formar parte de mi vida.
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        f"""
-        <div style="
-            text-align:center;
-            margin:2rem 0;
-            color:rgba(255,255,255,0.55);
-        ">
-
-            Faltan aproximadamente
-
-            <div style="
-                font-family:'Unbounded',sans-serif;
-                font-size:2rem;
-                margin:0.5rem 0;
-
-                background:linear-gradient(
-                    90deg,
-                    #FF3E7F,
-                    #FFC857,
-                    #8C52FF
-                );
-
-                -webkit-background-clip:text;
-                -webkit-text-fill-color:transparent;
-            ">
-
-                {dias} días
-
-            </div>
-
-            para nuestro próximo aniversario 💫
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    st.markdown(
-        """
-        <div class="quote">
-
-        Y si pudiera volver al 24 de julio de 2023,
-        volvería a elegir comenzar esta historia contigo.
-
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+        aniversario = datetime.date(hoy.year + 1, 9, 23)
+    return (aniversario - hoy).days
 
 
 # ============================================================
 # SLIDES
 # ============================================================
 
+def slide_portada():
+    render_html("""
+        <div class="hero">
+            <div class="eyebrow">NUESTRO WRAPPED 💫</div>
+            <div class="title">3 Años Juntos</div>
+            <div class="subtitle">Una pequeña recopilación de nuestra historia, nuestras canciones, nuestros lugares y todos esos momentos que hicieron estos años tan especiales.</div>
+        </div>
+    """)
+    render_html("""
+        <div class="stats">
+            <div class="stat"><div class="stat-number">3</div><div class="stat-label">AÑOS JUNTOS</div></div>
+            <div class="stat"><div class="stat-number">11</div><div class="stat-label">CANCIONES</div></div>
+            <div class="stat"><div class="stat-number">3</div><div class="stat-label">LUGARES FAVORITOS</div></div>
+            <div class="stat"><div class="stat-number">2</div><div class="stat-label">CONEJITOS 🐰</div></div>
+        </div>
+    """)
+    portada = os.path.join(FOTOS_DIR, "portada.png")
+    if os.path.exists(portada):
+        mostrar_foto(portada)
+    render_html("""
+        <div class="quote">Tres años pueden parecer solamente un número, pero cuando los llenas de recuerdos, personas, lugares, canciones y momentos, se convierten en una historia.</div>
+    """)
+    if st.button("Comenzar el recorrido ▶", key="comenzar", use_container_width=True):
+        st.session_state.slide = 1
+        st.rerun()
+
+
+def slide_inicio():
+    encabezado("El inicio de todo", "La historia comenzó el 24 de julio de 2023.", "24 · 07 · 2023")
+    render_html("""
+        <div class="story">
+        Hay fechas que terminan convirtiéndose en algo mucho más grande de lo que imaginábamos.<br><br>
+        El 24 de julio de 2023 comenzó nuestra historia. Desde ese momento empezamos a crear recuerdos, aprender uno del otro y descubrir todo lo que podíamos vivir juntos.
+        </div>
+    """)
+    mostrar_foto(FOTOS["inicio"], "Aquí comenzó una parte muy importante de nuestra historia ❤️")
+
+
+def slide_caifanes():
+    encabezado("Nuestro concierto de Caifanes", "Una noche que terminó convirtiéndose en uno de nuestros recuerdos.", "CAIFANES 🎸")
+    render_html("""
+        <div class="story">
+        Entre música, gente y emoción vivimos una de esas noches que se quedan guardadas.<br><br>
+        Porque no solamente importa a dónde vamos, sino con quién compartimos el momento.
+        </div>
+    """)
+    mostrar_foto(FOTOS["caifanes"], "Una noche para recordar 🎸❤️")
+
+
+def slide_diciembre_2023():
+    encabezado("Diciembre 2023", "Nuestro primer diciembre lleno de recuerdos.", "DICIEMBRE · 2023")
+    anecdota("🏡 El pueblo de mi papá", "Un lugar diferente, pero mucho más especial porque estabas conmigo.")
+    anecdota("🎉 La piñata", "Compartiendo momentos sencillos que terminaron convirtiéndose en recuerdos.")
+    anecdota("🌊 Rumbo a Mazatlán", "Una aventura más de tantas que hemos ido sumando a nuestra historia.")
+    carrusel_fotos(FOTOS["diciembre_2023"], CAPTIONS["diciembre_2023"], "diciembre")
+
+
+def slide_2024():
+    encabezado("2024", "Un año lleno de cambios, proyectos y momentos juntos.", "2024")
+    anecdota("🎓 SHESPAT", "Emprendiendo juntos con las togas y estolas SHESPAT.")
+    anecdota("🏍️ La moto", "Ese momento en el que empezaste a enseñarme a manejar.")
+    anecdota("💇 Mi cambio de look", "Gracias a ti también llegaron nuevos cambios y nuevas versiones de mí.")
+    anecdota("🎄 Nuestra primera Navidad", "Nuestra primera Navidad juntos, creando una tradición propia.")
+    carrusel_fotos(FOTOS["y2024"], CAPTIONS["y2024"], "y2024")
+
+
+def slide_2025_2026():
+    encabezado("2025 · 2026", "Seguimos acumulando recuerdos.", "NUEVOS RECUERDOS")
+    anecdota("🎁 El reloj para mi papá", "Un detalle que terminó convirtiéndose en otro recuerdo de nuestra historia.")
+    anecdota("🐰 Carajo y Nena", "Nuestros conejitos y dos pequeños integrantes de nuestra historia.")
+    anecdota("🎡 La feria", "La feria, la rueda de la fortuna y otra aventura juntos.")
+    carrusel_fotos(FOTOS["y2025_2026"], CAPTIONS["y2025_2026"], "y2025_2026")
+
+
+def slide_gastronomia():
+    encabezado("También hemos comido juntos", "Porque una relación también se construye alrededor de una mesa.", "NUESTROS LUGARES 🍜")
+    for restaurante in RESTAURANTES:
+        render_html(f"""
+            <div class="restaurant">
+                <div class="restaurant-name">{restaurante["nombre"]}</div>
+                <div class="restaurant-description">{restaurante["descripcion"]}</div>
+            </div>
+        """)
+    render_html("""
+        <div class="quote">Al final, muchos de nuestros recuerdos favoritos también tienen algo en común: comida, plática y nosotros dos.</div>
+    """)
+
+
+def slide_playlist():
+    encabezado("Nuestra banda sonora", "11 canciones que, de una u otra manera, forman parte de nuestra historia.", "NUESTRA PLAYLIST 🎵")
+    for indice, cancion in enumerate(CANCIONES, start=1):
+        render_html(f"""
+            <div class="track">
+                <div class="track-number">#{indice:02d}</div>
+                <div class="track-title">{cancion["titulo"]}</div>
+                <div class="track-artist">{cancion["artista"]}</div>
+                <div class="track-meaning">{cancion["significado"]}</div>
+            </div>
+        """)
+
+
+def slide_galeria():
+    encabezado("Galería de recuerdos", "Una colección de pequeños momentos que queremos conservar.", "NUESTROS RECUERDOS 📸")
+    galeria_paginada()
+
+
+def slide_cierre():
+    dias = dias_para_aniversario()
+    render_html("""
+        <div class="hero">
+            <div class="eyebrow">Y ESTO APENAS ES UNA PARTE</div>
+            <div class="love-message">Gracias por estos<br>3 años ❤️</div>
+        </div>
+    """)
+    render_html("""
+        <div class="story">
+        Hemos cambiado, aprendido, reído, salido, comido, viajado y vivido muchas cosas juntos.<br><br>
+        Y aunque este Wrapped solamente puede guardar algunas fotografías y canciones, nuestra historia tiene muchísimos más momentos.<br><br>
+        Gracias por formar parte de mi vida.
+        </div>
+    """)
+    render_html(f"""
+        <div style="text-align:center;margin:2rem 0;color:rgba(255,255,255,0.55);">
+            Faltan aproximadamente
+            <div style="font-family:'Unbounded',sans-serif;font-size:2rem;margin:0.5rem 0;background:linear-gradient(90deg, #FF3E7F, #FFC857, #8C52FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                {dias} días
+            </div>
+            para nuestro próximo aniversario 💫
+        </div>
+    """)
+    render_html("""
+        <div class="quote">Y si pudiera volver al 24 de julio de 2023, volvería a elegir comenzar esta historia contigo.</div>
+    """)
+
+
 SLIDES = [
-
-    (
-        "Portada",
-        slide_portada,
-        "portada"
-    ),
-
-    (
-        "El inicio de todo",
-        slide_inicio,
-        "inicio"
-    ),
-
-    (
-        "Concierto de Caifanes",
-        slide_caifanes,
-        "caifanes"
-    ),
-
-    (
-        "Diciembre 2023",
-        slide_diciembre_2023,
-        "diciembre_2023"
-    ),
-
-    (
-        "2024",
-        slide_2024,
-        "y2024"
-    ),
-
-    (
-        "2025 y 2026",
-        slide_2025_2026,
-        "y2025_2026"
-    ),
-
-    (
-        "Gastronomía",
-        slide_gastronomia,
-        "gastronomia"
-    ),
-
-    (
-        "Nuestra banda sonora",
-        slide_playlist,
-        "playlist"
-    ),
-
-    (
-        "Galería de recuerdos",
-        slide_galeria,
-        "galeria"
-    ),
-
-    (
-        "Cierre",
-        slide_cierre,
-        "cierre"
-    ),
-
+    ("Portada", slide_portada, "portada"),
+    ("El inicio de todo", slide_inicio, "inicio"),
+    ("Concierto de Caifanes", slide_caifanes, "caifanes"),
+    ("Diciembre 2023", slide_diciembre_2023, "diciembre_2023"),
+    ("2024", slide_2024, "y2024"),
+    ("2025 y 2026", slide_2025_2026, "y2025_2026"),
+    ("Gastronomía", slide_gastronomia, "gastronomia"),
+    ("Nuestra banda sonora", slide_playlist, "playlist"),
+    ("Galería de recuerdos", slide_galeria, "galeria"),
+    ("Cierre", slide_cierre, "cierre"),
 ]
 
 
-# ============================================================
-# PUNTOS DE PROGRESO
-# ============================================================
-
 def render_puntos(indice):
-
     puntos = ""
-
     for i in range(len(SLIDES)):
+        clase = "dot active" if i == indice else "dot"
+        puntos += f'<div class="{clase}"></div>'
+    render_html(f'<div class="dots">{puntos}</div>')
 
-        clase = (
-            "dot active"
-            if i == indice
-            else "dot"
-        )
-
-        puntos += (
-            f'<div class="{clase}"></div>'
-        )
-
-    st.markdown(
-        f'<div class="dots">{puntos}</div>',
-        unsafe_allow_html=True
-    )
-
-
-# ============================================================
-# NAVEGACIÓN
-# ============================================================
 
 def render_navegacion(indice):
-
     total = len(SLIDES)
-
-    st.markdown(
-        f"""
-        <div class="progress-text">
-            {indice + 1} / {total}
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
+    render_html(f'<div class="progress-text">{indice + 1} / {total}</div>')
     col1, col2 = st.columns(2)
-
     with col1:
-
         if indice > 0:
-
-            if st.button(
-                "← Anterior",
-                key=f"prev_{indice}",
-                use_container_width=True
-            ):
-
-                st.session_state.slide = (
-                    indice - 1
-                )
-
+            if st.button("← Anterior", key=f"prev_{indice}", use_container_width=True):
+                st.session_state.slide = indice - 1
                 st.rerun()
-
     with col2:
-
         if indice < total - 1:
-
-            if st.button(
-                "Siguiente →",
-                key=f"next_{indice}",
-                use_container_width=True
-            ):
-
-                st.session_state.slide = (
-                    indice + 1
-                )
-
+            if st.button("Siguiente →", key=f"next_{indice}", use_container_width=True):
+                st.session_state.slide = indice + 1
                 st.rerun()
 
 
@@ -1694,101 +902,44 @@ def render_navegacion(indice):
 # ============================================================
 
 def main():
-
-    # CSS
     inyectar_css()
-
-    # Música
     musica_fondo()
 
-    # Estado inicial
     if "slide" not in st.session_state:
-
         st.session_state.slide = 0
 
     indice = st.session_state.slide
-
-    indice = max(
-        0,
-        min(
-            indice,
-            len(SLIDES) - 1
-        )
-    )
-
+    indice = max(0, min(indice, len(SLIDES) - 1))
     st.session_state.slide = indice
 
-
-    # ========================================================
     # SIDEBAR
-    # ========================================================
-
     with st.sidebar:
-
-        st.markdown(
-            "### Nuestro Wrapped 💫"
-        )
-
-        opciones = [
-            slide[0]
-            for slide in SLIDES
-        ]
-
+        st.markdown("### Nuestro Wrapped 💫")
+        opciones = [slide[0] for slide in SLIDES]
+        
         seleccion = st.selectbox(
             "Ir a:",
             opciones,
             index=indice,
             key="selector_slide"
         )
-
-        nuevo_indice = opciones.index(
-            seleccion
-        )
-
+        
+        nuevo_indice = opciones.index(seleccion)
         if nuevo_indice != indice:
-
-            st.session_state.slide = (
-                nuevo_indice
-            )
-
+            st.session_state.slide = nuevo_indice
             st.rerun()
-
-
-    # ========================================================
-    # PROGRESO
-    # ========================================================
 
     render_puntos(indice)
 
-
-    # ========================================================
-    # SLIDE ACTUAL
-    # ========================================================
-
     funcion_slide = SLIDES[indice][1]
-
     funcion_slide()
-
-
-    # ========================================================
-    # NAVEGACIÓN
-    # ========================================================
 
     render_navegacion(indice)
 
-
-    # ========================================================
-    # CONFETI FINAL
-    # ========================================================
-
     if indice == len(SLIDES) - 1:
-
         st.balloons()
 
 
-# ============================================================
-# EJECUCIÓN
-# ============================================================
-
 if __name__ == "__main__":
     main()
+

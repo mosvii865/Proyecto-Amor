@@ -16,7 +16,6 @@ st.set_page_config(
 
 FOTOS_DIR = "fotos"
 GALERIA_DIR = os.path.join(FOTOS_DIR, "galeria")
-# La música ahora se busca en la carpeta principal (raíz)
 MUSICA_FONDO = "musica.mp3"
 
 
@@ -581,44 +580,16 @@ def anecdota(titulo, texto):
     )
 
 
-def mostrar_foto(
-    ruta,
-    caption=None,
-    width="100%"
-):
-
+def mostrar_foto(ruta, caption=None):
     if not ruta or not os.path.exists(ruta):
-        st.warning(
-            f"No se encontró la imagen: {ruta}"
-        )
+        st.warning(f"No se encontró la imagen: {ruta}")
         return
 
-    st.markdown(
-        '<div class="photo-card">',
-        unsafe_allow_html=True
-    )
-
-    # CORRECCIÓN AQUÍ: Se usa width="stretch" en lugar de use_column_width
-    st.image(
-        ruta,
-        width="stretch"
-    )
-
+    st.markdown('<div class="photo-card">', unsafe_allow_html=True)
+    st.image(ruta, width="stretch")
     if caption:
-
-        st.markdown(
-            f"""
-            <div class="photo-caption">
-                {caption}
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-    st.markdown(
-        "</div>",
-        unsafe_allow_html=True
-    )
+        st.markdown(f'<div class="photo-caption">{caption}</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 def carrusel_fotos(fotos, captions=None, key_prefix="carousel"):

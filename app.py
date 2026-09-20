@@ -1,55 +1,46 @@
-# -*- coding: utf-8 -*-
-"""
-Nuestro Wrapped 💫 — 3 Años Juntos
------------------------------------
-App en Streamlit estilo "Spotify Wrapped" para celebrar el aniversario.
-Un solo archivo: streamlit + Pillow.
-
-Cómo correrla:
-    pip install -r requirements.txt
-    streamlit run app.py
-
-Organiza tus fotos en la carpeta fotos/ (ver el mensaje de instrucciones
-que acompaña este código para la estructura exacta).
-"""
-
 import os
-import glob
-from datetime import date
-
+import base64
 import streamlit as st
-from PIL import Image, ImageOps
 
-# =============================================================================
-# CONFIGURACIÓN GENERAL
-# =============================================================================
+
+# ============================================================
+# CONFIGURACIÓN
+# ============================================================
 
 st.set_page_config(
     page_title="Nuestro Wrapped · 3 Años",
     page_icon="💫",
     layout="centered",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="collapsed"
 )
 
 FOTOS_DIR = "fotos"
 GALERIA_DIR = os.path.join(FOTOS_DIR, "galeria")
+# La música ahora se busca en la carpeta principal (raíz)
+MUSICA_FONDO = "musica.mp3"
 
-# Mapa de fotos "ancla" por capítulo. Si el archivo no existe, se muestra
-# un placeholder elegante en su lugar — la app nunca truena por fotos faltantes.
-IMAGENES = {
+
+# ============================================================
+# FOTOS
+# ============================================================
+
+FOTOS = {
     "inicio": os.path.join(FOTOS_DIR, "image_0.png"),
     "caifanes": os.path.join(FOTOS_DIR, "image_1.png"),
+
     "diciembre_2023": [
         os.path.join(FOTOS_DIR, "image_2.png"),
         os.path.join(FOTOS_DIR, "image_3.png"),
         os.path.join(FOTOS_DIR, "image_4.png"),
     ],
+
     "y2024": [
         os.path.join(FOTOS_DIR, "image_5.png"),
         os.path.join(FOTOS_DIR, "image_6.png"),
         os.path.join(FOTOS_DIR, "image_7.png"),
         os.path.join(FOTOS_DIR, "image_8.png"),
     ],
+
     "y2025_2026": [
         os.path.join(FOTOS_DIR, "image_9.png"),
         os.path.join(FOTOS_DIR, "image_10.png"),
@@ -57,675 +48,878 @@ IMAGENES = {
     ],
 }
 
-CAPTIONS_DICIEMBRE = ["En el pueblo de mi papá, contigo 🏡", "Rompiendo la piñata juntos 🎉", "Rumbo a Mazatlán 🌊"]
-CAPTIONS_2024 = [
-    "Emprendiendo con las togas SHESPAT 🎓",
-    "Enseñándome a manejar la moto 🏍️",
-    "Mi cambio de look, gracias a ti 💇",
-    "Nuestra primera Navidad juntos 🎄",
-]
-CAPTIONS_2025_2026 = ["El reloj para mi papá 🎁", "Carajo y Nena, nuestros conejitos 🐰", "La feria y la rueda de la fortuna 🎡"]
 
-# Paleta: cada capítulo tiene su propio par de acentos, como en un Wrapped real.
-ACENTOS = {
-    "portada": ("#FF3E7F", "#8C52FF"),
-    "inicio": ("#FF8A4C", "#FF3E7F"),
-    "caifanes": ("#FFC857", "#FF3E7F"),
-    "diciembre_2023": ("#2FD5C4", "#8C52FF"),
-    "y2024": ("#FFC857", "#FF8A4C"),
-    "y2025_2026": ("#2FD5C4", "#FF3E7F"),
-    "gastronomia": ("#FF8A4C", "#FFC857"),
-    "playlist": ("#8C52FF", "#FF3E7F"),
-    "galeria": ("#2FD5C4", "#FFC857"),
-    "cierre": ("#FF3E7F", "#8C52FF"),
+# ============================================================
+# TEXTOS DE LAS FOTOS
+# ============================================================
+
+CAPTIONS = {
+    "diciembre_2023": [
+        "En el pueblo de mi papá, contigo 🏡",
+        "Rompiendo la piñata juntos 🎉",
+        "Rumbo a Mazatlán 🌊",
+    ],
+
+    "y2024": [
+        "Emprendiendo con las togas SHESPAT 🎓",
+        "Enseñándome a manejar la moto 🏍️",
+        "Mi cambio de look, gracias a ti 💇",
+        "Nuestra primera Navidad juntos 🎄",
+    ],
+
+    "y2025_2026": [
+        "El reloj para mi papá 🎁",
+        "Carajo y Nena, nuestros conejitos 🐰",
+        "La feria y la rueda de la fortuna 🎡",
+    ],
 }
 
-# Canciones clave con reproductor incrustado (IDs tomados de tus enlaces de YouTube Music).
+
+# ============================================================
+# PLAYLIST
+# ============================================================
+
 CANCIONES = [
     {
         "titulo": "Tiempo para Amarte",
         "artista": "Laureano Brizuela",
         "significado": (
-            "A pesar de las cuentas y el estrés diario, siempre quiero guardar tiempo "
-            "para amarte otra vez, para que nos amemos y sigamos juntos para siempre."
+            "A pesar de las cuentas, el estrés diario y todas las cosas "
+            "que tenemos que hacer, siempre quiero encontrar tiempo para ti."
         ),
+        "video_id": None,
     },
     {
         "titulo": "My One and Only Love / They Say It's Wonderful",
         "artista": "John Coltrane",
         "significado": (
-            "Mi descubrimiento personal del amor: el paso de escuchar hablar de él a "
-            "sentirlo por primera vez, contigo. Me hiciste experimentar un amor muy bonito."
+            "Mi descubrimiento personal del amor y una canción que terminó "
+            "teniendo un significado muy especial para nosotros."
         ),
+        "video_id": None,
     },
     {
         "titulo": "I Only Have Eyes for You",
         "artista": "Louis Armstrong",
-        "significado": "Dedicada a ti, el amor de mi vida.",
+        "significado": (
+            "Porque entre todas las personas, lugares y cosas que existen, "
+            "mis ojos siempre terminan buscándote a ti."
+        ),
         "video_id": None,
     },
     {
         "titulo": "Eso y Más",
         "artista": "Joan Sebastián",
-        "significado": "No importa qué, haría lo que sea e incluso más por ti.",
+        "significado": (
+            "Una canción que representa todo eso que siento y muchas veces "
+            "no sé cómo decirte."
+        ),
+        "video_id": None,
     },
     {
         "titulo": "Diséñame",
         "artista": "Joan Sebastián",
-        "significado": "Como 'Eso y Más', me recuerda que no hay límite para lo que haría por ti.",
+        "significado": (
+            "Porque de alguna manera nuestro amor fue construyéndose "
+            "poco a poco, con nuestras propias historias."
+        ),
+        "video_id": None,
     },
     {
         "titulo": "The Nearness of You",
         "artista": "Ella Fitzgerald & Louis Armstrong",
-        "significado": "Tu cercanía es la sensación más hermosa que podría experimentar.",
+        "significado": (
+            "La cercanía de la persona que amas puede hacer que cualquier "
+            "momento cotidiano se sienta especial."
+        ),
         "video_id": None,
     },
     {
         "titulo": "Only You",
         "artista": "The Platters",
-        "significado": "Solamente tú has hecho que sienta un amor y una atracción tan grandes.",
+        "significado": (
+            "Porque hay personas que simplemente se vuelven únicas "
+            "en nuestra vida."
+        ),
         "video_id": None,
     },
     {
         "titulo": "Eres",
         "artista": "José María Napoleón",
-        "significado": "Eres la respuesta de todo en mi vida: mi camino, mi hogar, mi guía, mi todo.",
+        "significado": (
+            "Una forma de decirte todo lo que significas para mí."
+        ),
         "video_id": None,
     },
     {
         "titulo": "Mi Mundo Tú",
         "artista": "Camilo Sesto",
-        "significado": "Para recordarte que tú eres todo mi mundo.",
+        "significado": (
+            "Porque después de estos años, eres una parte enorme "
+            "de mi mundo."
+        ),
         "video_id": None,
     },
     {
         "titulo": "Cama y Mesa",
         "artista": "Roberto Carlos",
         "significado": (
-            "El deseo de ser tu todo, de que solo me veas y me sientas a mí desde la "
-            "mañana hasta el anochecer."
+            "Una canción que habla de compartir la vida, los momentos "
+            "íntimos y también los cotidianos."
         ),
         "video_id": None,
     },
     {
         "titulo": "Invítame un cigarro",
-        "artista": "(agrega aquí el artista o versión que prefieras)",
+        "artista": "Tradicional / Popular",
         "significado": (
-            "✏️ Todavía no tengo guardado qué significa esta para ti — cuéntamelo y "
-            "la personalizo."
+            "Una de esas canciones que terminan formando parte "
+            "de nuestra historia."
         ),
         "video_id": None,
     },
 ]
 
+
+# ============================================================
+# RESTAURANTES
+# ============================================================
+
 RESTAURANTES = [
-    {"nombre": "Ninja Ramen", "emoji": "🍥", "nota": "Nuestro lugar más frecuente. El Sushi Hot Panko aquí es sagrado para nosotros."},
-    {"nombre": "Ryu Ramen House", "emoji": "🍜", "nota": "Otra parada obligada en nuestras citas."},
-    {"nombre": "Trueke Comida & Amigos", "emoji": "🥢", "nota": "Buena comida, mejor compañía: la tuya."},
+    {
+        "nombre": "Ninja Ramen",
+        "descripcion": (
+            "Uno de esos lugares que se volvieron parte de nuestros "
+            "momentos juntos."
+        ),
+    },
+    {
+        "nombre": "Ryu Ramen House",
+        "descripcion": (
+            "Comida, plática y tiempo juntos. Porque hasta salir a comer "
+            "puede convertirse en un recuerdo."
+        ),
+    },
+    {
+        "nombre": "Trueke Comida & Amigos",
+        "descripcion": (
+            "Otro lugar que quedó guardado dentro de nuestras pequeñas "
+            "aventuras."
+        ),
+    },
 ]
 
 
-# =============================================================================
-# ESTILOS (CSS)
-# =============================================================================
+# ============================================================
+# CSS
+# ============================================================
 
 def inyectar_css():
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800;900&family=Manrope:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;500;600;700&display=swap');
 
-        html, body, [class*="css"] { font-family: 'Manrope', sans-serif; }
+        html, body, [class*="css"] {
+            font-family: 'Manrope', sans-serif;
+        }
 
         .stApp {
-            background: linear-gradient(160deg, #0B0714 0%, #1C0F2E 55%, #2B0F1F 100%);
-            background-attachment: fixed;
-            color: #F5F1EC;
+            background:
+                radial-gradient(circle at 20% 10%, rgba(255, 62, 127, 0.20), transparent 30%),
+                radial-gradient(circle at 90% 20%, rgba(140, 82, 255, 0.18), transparent 30%),
+                linear-gradient(145deg, #100718 0%, #19091f 45%, #0d0615 100%);
+            color: #ffffff;
         }
 
-        #MainMenu, header[data-testid="stHeader"], footer { visibility: hidden; height: 0; }
-
-        [data-testid="stAppViewContainer"] .main .block-container {
-            max-width: 640px;
-            padding-top: 2rem;
-            padding-bottom: 1rem;
+        header, footer, #MainMenu {
+            visibility: hidden;
         }
 
-        [data-testid="stSidebar"] { background: #0B0714; }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
+        .block-container {
+            max-width: 640px !important;
+            padding-top: 2rem !important;
+            padding-bottom: 3rem !important;
         }
 
-        @media (prefers-reduced-motion: reduce) {
-            * { animation: none !important; opacity: 1 !important; transform: none !important; }
+        .hero {
+            text-align: center;
+            padding: 2rem 0 1rem 0;
         }
 
-        /* Toda foto (st.image) entra con el mismo desvanecimiento suave */
-        [data-testid="stImage"] img {
-            animation: fadeInUp 0.6s ease both;
-            border-radius: 14px;
+        .eyebrow {
+            text-transform: uppercase;
+            letter-spacing: 0.22em;
+            font-size: 0.70rem;
+            color: rgba(255,255,255,0.55);
+            font-weight: 700;
+            margin-bottom: 0.9rem;
         }
 
-        /* ---------- Encabezado de capítulo ---------- */
-        .emoji-badge { font-size: 2.4rem; line-height: 1; margin-bottom: 0.35rem; }
-        .chapter-title { font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 2.1rem; line-height: 1.12; margin: 0 0 0.3rem 0; }
-        .chapter-sub { color: #B8AEC4; font-size: 0.98rem; margin-bottom: 1.4rem; }
-
-        /* ---------- Bloques de anécdota (sin caja, solo borde vivo) ---------- */
-        .anecdote { border-left: 3px solid rgba(255,255,255,0.25); padding: 0.15rem 0 0.15rem 1.1rem; margin: 0 0 1.5rem 0; font-size: 1.02rem; line-height: 1.62; color: #EDE7F6; }
-
-        /* ---------- Fotos ---------- */
-        .img-caption { text-align: center; font-size: 0.88rem; color: #B8AEC4; font-style: italic; margin-top: 0.4rem; margin-bottom: 1.3rem; }
-        .img-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.4rem; border: 1.5px dashed rgba(255,255,255,0.22); border-radius: 16px; padding: 2.2rem 1rem; margin-bottom: 1.3rem; color: #8B8299; font-size: 0.92rem; text-align: center; }
-
-        /* ---------- Franja de estadísticas (estilo boleto) ---------- */
-        .stats-row { display: flex; flex-wrap: wrap; gap: 0; margin: 1.6rem 0 1.8rem 0; border-top: 1px dashed rgba(255,255,255,0.2); border-bottom: 1px dashed rgba(255,255,255,0.2); padding: 1.1rem 0; }
-        .stat-item { flex: 1 1 25%; min-width: 110px; text-align: center; padding: 0.3rem 0.4rem; border-right: 1px solid rgba(255,255,255,0.12); }
-        .stat-item:last-child { border-right: none; }
-        .stat-num { font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 1.7rem; background: linear-gradient(90deg, #FF3E7F, #8C52FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .stat-label { font-size: 0.78rem; color: #B8AEC4; margin-top: 0.15rem; }
-
-        /* ---------- Puntos de progreso (tipo stories) ---------- */
-        .dots-container { display: flex; gap: 6px; justify-content: center; margin-bottom: 1.6rem; }
-        .dot { height: 5px; width: 20px; border-radius: 4px; background: rgba(255,255,255,0.15); transition: all 0.25s ease; }
-        .dot.active { width: 34px; background: linear-gradient(90deg, #FF3E7F, #FFC857); }
-
-        /* ---------- Filas de canciones (playlist) ---------- */
-        .track-row { display: flex; gap: 0.9rem; align-items: flex-start; padding: 0.9rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .track-num { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 0.95rem; color: #8B8299; min-width: 1.6rem; padding-top: 0.15rem; }
-        .track-title { font-weight: 700; font-size: 1rem; color: #F5F1EC; }
-        .track-artist { font-size: 0.85rem; color: #B8AEC4; margin-bottom: 0.3rem; }
-        .track-meaning { font-size: 0.92rem; color: #D8D0E6; line-height: 1.5; }
-
-        /* ---------- Reproductor de YouTube ---------- */
-        .player-label { font-size: 0.82rem; color: #B8AEC4; margin-bottom: 0.4rem; }
-        .player-frame { border-radius: 14px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-
-        /* ---------- Tarjetas de restaurante (ticket) ---------- */
-        .food-card { background: rgba(255,255,255,0.045); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 0.9rem; display: flex; gap: 0.8rem; align-items: flex-start; }
-        .food-emoji { font-size: 1.6rem; }
-        .food-name { font-weight: 700; font-size: 1.02rem; margin-bottom: 0.15rem; }
-        .food-note { font-size: 0.9rem; color: #B8AEC4; line-height: 1.5; }
-
-        /* ---------- Indicador de carrusel / paginación ---------- */
-        .carousel-indicator { text-align: center; padding-top: 0.5rem; color: #B8AEC4; font-size: 0.85rem; }
-
-        /* ---------- Botones de Streamlit ---------- */
-        div[data-testid="stButton"] > button {
-            border-radius: 999px; border: none; padding: 0.6rem 1rem; font-weight: 700;
-            font-family: 'Manrope', sans-serif; transition: transform 0.15s ease, box-shadow 0.15s ease;
-            animation: fadeInUp 0.5s ease both; animation-delay: 0.15s;
+        .title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(2rem, 8vw, 4rem);
+            line-height: 1.05;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(90deg, #FF3E7F, #FFC857, #8C52FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        div[data-testid="stButton"] > button[kind="primary"] { background: linear-gradient(90deg, #FF3E7F, #8C52FF); color: white; box-shadow: 0 4px 18px rgba(255, 62, 127, 0.35); }
-        div[data-testid="stButton"] > button[kind="primary"]:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 6px 22px rgba(255, 62, 127, 0.5); }
-        div[data-testid="stButton"] > button[kind="secondary"] { background: rgba(255,255,255,0.06); color: #F5F1EC; border: 1px solid rgba(255,255,255,0.15); }
-        div[data-testid="stButton"] > button[kind="secondary"]:hover { background: rgba(255,255,255,0.1); }
 
-        @media (max-width: 640px) {
-            .chapter-title { font-size: 1.65rem; }
-            .stat-num { font-size: 1.4rem; }
-            .stat-item { flex: 1 1 45%; }
+        .subtitle {
+            color: rgba(255,255,255,0.72);
+            font-size: 1rem;
+            margin-top: 1rem;
+            line-height: 1.7;
+        }
+
+        .section-title {
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(1.45rem, 5vw, 2.3rem);
+            line-height: 1.2;
+            margin-bottom: 0.6rem;
+        }
+
+        .section-subtitle {
+            color: rgba(255,255,255,0.65);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .date {
+            color: #FFC857;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.8rem;
+        }
+
+        .story {
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 24px;
+            padding: 1.3rem;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.82);
+            margin: 1rem 0;
+            box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+        }
+
+        .quote {
+            border-left: 3px solid #FF3E7F;
+            padding-left: 1rem;
+            color: rgba(255,255,255,0.78);
+            font-style: italic;
+            line-height: 1.7;
+            margin: 1.5rem 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.7rem;
+            margin: 1.5rem 0;
+        }
+
+        .stat {
+            background: rgba(255,255,255,0.055);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 1.1rem 0.7rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.75rem;
+            margin-top: 0.4rem;
+        }
+
+        .photo-card {
+            overflow: hidden;
+            border-radius: 25px;
+            margin: 1rem 0;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .photo-caption {
+            padding: 0.9rem 1rem 1rem;
+            color: rgba(255,255,255,0.75);
+            font-size: 0.9rem;
+        }
+
+        .anecdote {
+            padding: 1.1rem 1.2rem;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.025));
+            border: 1px solid rgba(255,255,255,0.07);
+            margin: 0.8rem 0;
+        }
+
+        .anecdote-title {
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+        }
+
+        .anecdote-text {
+            color: rgba(255,255,255,0.68);
+            line-height: 1.65;
+            font-size: 0.92rem;
+        }
+
+        .track {
+            background: rgba(255,255,255,0.045);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            padding: 1rem;
+            margin: 0.7rem 0;
+        }
+
+        .track-number {
+            color: rgba(255,255,255,0.38);
+            font-size: 0.75rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .track-title {
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .track-artist {
+            color: #FFC857;
+            font-size: 0.82rem;
+            margin-top: 0.2rem;
+        }
+
+        .track-meaning {
+            color: rgba(255,255,255,0.62);
+            font-size: 0.84rem;
+            line-height: 1.55;
+            margin-top: 0.65rem;
+        }
+
+        .restaurant {
+            padding: 1.2rem;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.07);
+            margin: 0.8rem 0;
+        }
+
+        .restaurant-name {
+            font-family: 'Unbounded', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 0.55rem;
+        }
+
+        .restaurant-description {
+            color: rgba(255,255,255,0.65);
+            line-height: 1.6;
+            font-size: 0.88rem;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: rgba(255,255,255,0.48);
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 0.7rem;
+        }
+
+        .dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin: 0.8rem 0 1.5rem;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+        }
+
+        .dot.active {
+            width: 24px;
+            border-radius: 20px;
+            background: linear-gradient(90deg, #FF3E7F, #8C52FF);
+        }
+
+        .love-message {
+            text-align: center;
+            font-family: 'Unbounded', sans-serif;
+            font-size: clamp(1.4rem, 5vw, 2.2rem);
+            line-height: 1.45;
+            margin: 2rem 0;
+            background: linear-gradient(90deg, #FF3E7F, #FFC857, #8C52FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        div.stButton > button {
+            width: 100%;
+            border-radius: 18px;
+            min-height: 48px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.06);
+            color: white;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        div.stButton > button:hover {
+            border-color: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.10);
+        }
+
+        [data-testid="stSidebar"] {
+            background: #100718;
         }
         </style>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
 
 
-# =============================================================================
-# HELPERS
-# =============================================================================
+# ============================================================
+# MÚSICA DE FONDO
+# ============================================================
 
-def _fade_style(delay_idx):
-    """Devuelve un inline-style con animación de entrada y un retraso escalonado,
-    para el efecto de 'cascada' al cargar cada diapositiva."""
-    delay = min(delay_idx * 0.09, 0.6)
-    return f"animation: fadeInUp 0.7s ease both; animation-delay: {delay:.2f}s; opacity:0;"
-
-
-def encabezado(emoji, titulo, subtitulo="", delay=0):
-    sub_html = f'<div class="chapter-sub">{subtitulo}</div>' if subtitulo else ""
-    st.markdown(
-        f"""
-        <div style="{_fade_style(delay)}">
-            <div class="emoji-badge">{emoji}</div>
-            <div class="chapter-title">{titulo}</div>
-            {sub_html}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def anecdota(texto, color="rgba(255,255,255,0.25)", delay=0):
-    st.markdown(
-        f'<div class="anecdote" style="border-left-color:{color}; {_fade_style(delay)}">{texto}</div>',
-        unsafe_allow_html=True,
-    )
-
-
-def reproductor_youtube(video_id, titulo="", artista="", delay=0, alto=80):
-    if not video_id:
+def musica_fondo():
+    if not os.path.exists(MUSICA_FONDO):
         return
-    etiqueta = ""
-    if titulo:
-        extra = f" · {artista}" if artista else ""
-        etiqueta = f'<div class="player-label">🎵 {titulo}{extra}</div>'
-    st.markdown(
-        f"""
-        <div style="{_fade_style(delay)} margin-bottom:1.3rem;">
-            {etiqueta}
-            <div class="player-frame">
-                <iframe width="100%" height="{alto}"
-                    src="https://www.youtube.com/embed/{video_id}?rel=0&autoplay=1"
-                    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen>
-                </iframe>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
-
-def mostrar_foto(ruta, caption=""):
-    """Muestra la foto si existe; si no, un placeholder elegante para que la
-    app jamás se rompa por fotos faltantes."""
-    if ruta and os.path.exists(ruta):
-        try:
-            img = Image.open(ruta)
-            img = ImageOps.exif_transpose(img)
-            st.image(img, use_container_width=True)
-            if caption:
-                st.markdown(f'<div class="img-caption">{caption}</div>', unsafe_allow_html=True)
-            return
-        except Exception:
-            pass
-    nombre_sugerido = os.path.basename(ruta) if ruta else "foto.png"
-    st.markdown(
-        f"""
-        <div class="img-placeholder">
-            <span style="font-size:2rem;">📷</span>
-            <span>{caption or "Agrega tu foto aquí"}</span>
-            <span style="font-size:0.78rem; opacity:0.7;">Colócala como <code>{FOTOS_DIR}/{nombre_sugerido}</code></span>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-def crear_miniatura(ruta, tam=440):
     try:
-        img = Image.open(ruta).convert("RGB")
-        img = ImageOps.exif_transpose(img)
-        img = ImageOps.fit(img, (tam, tam), method=Image.LANCZOS)
-        return img
+        with open(MUSICA_FONDO, "rb") as archivo:
+            audio_data = base64.b64encode(archivo.read()).decode("utf-8")
     except Exception:
-        return None
-
-
-def carrusel_fotos(key, rutas, captions=None):
-    """Carrusel horizontal: una foto a la vez, con flechas y un indicador 'i / N'.
-    Así navegas entre las fotos de la sección sin tener que hacer scroll."""
-    if not rutas:
         return
-    n = len(rutas)
-    estado_key = f"carousel_{key}"
-    if estado_key not in st.session_state:
-        st.session_state[estado_key] = 0
-    idx = st.session_state[estado_key] % n
-    cap = captions[idx] if captions and idx < len(captions) else ""
 
-    mostrar_foto(rutas[idx], caption=cap)
+    st.markdown(
+        f"""
+        <audio
+            id="wrapped-background-music"
+            loop
+            preload="auto"
+            style="position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; left: -100px; top: -100px;"
+        >
+            <source src="data:audio/mpeg;base64,{audio_data}" type="audio/mpeg">
+        </audio>
+        <script>
+        (() => {{
+            const STORAGE_TIME = "wrapped_music_current_time";
+            const STORAGE_PLAYING = "wrapped_music_playing";
+            const audio = document.getElementById("wrapped-background-music");
+            if (!audio) return;
+            audio.volume = 0.28;
 
-    if n > 1:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col1:
-            if st.button("◀", key=f"{estado_key}_prev", use_container_width=True):
-                st.session_state[estado_key] = (idx - 1) % n
-                st.rerun()
-        with col2:
-            st.markdown(f'<div class="carousel-indicator">{idx + 1} / {n}</div>', unsafe_allow_html=True)
-        with col3:
-            if st.button("▶", key=f"{estado_key}_next", use_container_width=True):
-                st.session_state[estado_key] = (idx + 1) % n
-                st.rerun()
+            const savedTime = parseFloat(localStorage.getItem(STORAGE_TIME) || "0");
+            audio.addEventListener("loadedmetadata", () => {{
+                if (Number.isFinite(savedTime) && savedTime > 0 && savedTime < audio.duration) {{
+                    audio.currentTime = savedTime;
+                }}
+                if (localStorage.getItem(STORAGE_PLAYING) === "1") {{
+                    audio.play().catch(() => {{}});
+                }}
+            }}, {{ once: true }});
+
+            setInterval(() => {{
+                if (!audio.paused) {{
+                    localStorage.setItem(STORAGE_TIME, String(audio.currentTime));
+                }}
+            }}, 500);
+
+            audio.addEventListener("play", () => {{ localStorage.setItem(STORAGE_PLAYING, "1"); }});
+            audio.addEventListener("pause", () => {{ localStorage.setItem(STORAGE_PLAYING, "0"); }});
+            window.addEventListener("beforeunload", () => {{
+                localStorage.setItem(STORAGE_TIME, String(audio.currentTime));
+            }});
+
+            const iniciarMusica = () => {{ audio.play().catch(() => {{}}); }};
+            document.addEventListener("click", iniciarMusica, {{ once: true }});
+            document.addEventListener("touchstart", iniciarMusica, {{ once: true }});
+        }})();
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
 
 
-def galeria_paginada(archivos, por_pagina=6, columnas=3):
-    n = len(archivos)
-    total_paginas = max(1, (n + por_pagina - 1) // por_pagina)
-    estado_key = "galeria_pagina"
-    if estado_key not in st.session_state:
-        st.session_state[estado_key] = 0
-    pagina = st.session_state[estado_key] % total_paginas
-    lote = archivos[pagina * por_pagina: pagina * por_pagina + por_pagina]
+# ============================================================
+# ENCABEZADO Y COMPONENTES
+# ============================================================
 
-    cols = st.columns(columnas)
-    for i, ruta in enumerate(lote):
-        miniatura = crear_miniatura(ruta)
-        with cols[i % columnas]:
-            st.image(miniatura if miniatura is not None else ruta, use_container_width=True)
+def encabezado(titulo, subtitulo=None, seccion=None):
+    if seccion:
+        st.markdown(f'<div class="date">{seccion}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="section-title">{titulo}</div>', unsafe_allow_html=True)
+    if subtitulo:
+        st.markdown(f'<div class="section-subtitle">{subtitulo}</div>', unsafe_allow_html=True)
 
-    if total_paginas > 1:
-        col1, col2, col3 = st.columns([1, 2, 1])
-        with col1:
-            if st.button("◀", key="galeria_prev", use_container_width=True):
-                st.session_state[estado_key] = (pagina - 1) % total_paginas
-                st.rerun()
-        with col2:
-            st.markdown(f'<div class="carousel-indicator">Página {pagina + 1} / {total_paginas}</div>', unsafe_allow_html=True)
-        with col3:
-            if st.button("▶", key="galeria_next", use_container_width=True):
-                st.session_state[estado_key] = (pagina + 1) % total_paginas
-                st.rerun()
+
+def anecdota(titulo, texto):
+    st.markdown(
+        f"""
+        <div class="anecdote">
+            <div class="anecdote-title">{titulo}</div>
+            <div class="anecdote-text">{texto}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
+def mostrar_foto(ruta, caption=None):
+    if not ruta or not os.path.exists(ruta):
+        st.warning(f"No se encontró la imagen: {ruta}")
+        return
+
+    st.markdown('<div class="photo-card">', unsafe_allow_html=True)
+    st.image(ruta, use_column_width=True)
+    if caption:
+        st.markdown(f'<div class="photo-caption">{caption}</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
+def carrusel_fotos(fotos, captions=None, key_prefix="carousel"):
+    if not fotos:
+        return
+
+    if captions is None:
+        captions = [""] * len(fotos)
+
+    key = f"{key_prefix}_index"
+    if key not in st.session_state:
+        st.session_state[key] = 0
+
+    indice = st.session_state[key]
+    indice = max(0, min(indice, len(fotos) - 1))
+
+    mostrar_foto(fotos[indice], captions[indice])
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        if st.button("‹", key=f"{key_prefix}_prev", use_container_width=True):
+            st.session_state[key] = (indice - 1) % len(fotos)
+            st.rerun()
+    with col2:
+        st.markdown(f'<div style="text-align:center;color:rgba(255,255,255,0.45);padding-top:10px;font-size:0.75rem;">{indice + 1} / {len(fotos)}</div>', unsafe_allow_html=True)
+    with col3:
+        if st.button("›", key=f"{key_prefix}_next", use_container_width=True):
+            st.session_state[key] = (indice + 1) % len(fotos)
+            st.rerun()
+
+
+def galeria_paginada():
+    if not os.path.exists(GALERIA_DIR):
+        return
+
+    extensiones = (".png", ".jpg", ".jpeg", ".webp")
+    fotos = [
+        os.path.join(GALERIA_DIR, archivo)
+        for archivo in sorted(os.listdir(GALERIA_DIR))
+        if archivo.lower().endswith(extensiones)
+    ]
+
+    if not fotos:
+        return
+
+    key = "galeria_index"
+    if key not in st.session_state:
+        st.session_state[key] = 0
+
+    indice = st.session_state[key]
+    indice = max(0, min(indice, len(fotos) - 1))
+
+    mostrar_foto(fotos[indice])
+
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col1:
+        if st.button("‹", key="galeria_prev", use_container_width=True):
+            st.session_state[key] = (indice - 1) % len(fotos)
+            st.rerun()
+    with col2:
+        st.markdown(f'<div style="text-align:center;color:rgba(255,255,255,0.45);padding-top:10px;font-size:0.75rem;">{indice + 1} / {len(fotos)}</div>', unsafe_allow_html=True)
+    with col3:
+        if st.button("›", key="galeria_next", use_container_width=True):
+            st.session_state[key] = (indice + 1) % len(fotos)
+            st.rerun()
 
 
 def dias_para_aniversario():
-    hoy = date.today()
-    aniversario = date(hoy.year, 9, 23)
-    if hoy > aniversario:
-        aniversario = date(hoy.year + 1, 9, 23)
+    import datetime
+    hoy = datetime.date.today()
+    aniversario = datetime.date(hoy.year, 9, 23)
+    if aniversario < hoy:
+        aniversario = datetime.date(hoy.year + 1, 9, 23)
     return (aniversario - hoy).days
 
 
-# =============================================================================
-# PANTALLAS
-# =============================================================================
+# ============================================================
+# SLIDES
+# ============================================================
 
 def slide_portada():
-    c1, c2 = ACENTOS["portada"]
-    dias = dias_para_aniversario()
-    if dias == 0:
-        linea_fecha = "¡Hoy es nuestro aniversario! 🎉"
-    elif dias == 1:
-        linea_fecha = "Falta 1 día para nuestro aniversario 🎈"
-    else:
-        linea_fecha = f"Faltan {dias} días para nuestro aniversario 🎈"
-
     st.markdown(
-        f"""
-        <div style="{_fade_style(0)}">
-            <div class="emoji-badge">💫</div>
-            <div class="chapter-title" style="font-size:2.5rem;
-                 background: linear-gradient(90deg, {c1}, {c2});
-                 -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                Nuestro Wrapped
-            </div>
-            <div class="chapter-sub" style="font-size:1.05rem;">
-                Feliz aniversario, amor mío. 3 años juntos, y contando cada día desde que
-                empezamos a escribirnos el 24 de julio de 2023.<br>{linea_fecha}
-            </div>
+        """
+        <div class="hero">
+            <div class="eyebrow">NUESTRO WRAPPED 💫</div>
+            <div class="title">3 Años Juntos</div>
+            <div class="subtitle">Una pequeña recopilación de nuestra historia, nuestras canciones, nuestros lugares y todos esos momentos que hicieron estos años tan especiales.</div>
         </div>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
-
     st.markdown(
-        f"""
-        <div class="stats-row" style="{_fade_style(1)}">
-            <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">años juntos</div></div>
-            <div class="stat-item"><div class="stat-num">11</div><div class="stat-label">canciones nuestras</div></div>
-            <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">lugares favoritos</div></div>
-            <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">conejitos (Carajo y Nena)</div></div>
+        """
+        <div class="stats">
+            <div class="stat"><div class="stat-number">3</div><div class="stat-label">AÑOS JUNTOS</div></div>
+            <div class="stat"><div class="stat-number">11</div><div class="stat-label">CANCIONES</div></div>
+            <div class="stat"><div class="stat-number">3</div><div class="stat-label">LUGARES FAVORITOS</div></div>
+            <div class="stat"><div class="stat-number">2</div><div class="stat-label">CONEJITOS 🐰</div></div>
         </div>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
-
-    reproductor_youtube("fue4mYwJjeU", "Time to Love (Tiempo para Amarte)", "Laureano Brizuela", delay=2)
-    mostrar_foto(os.path.join(FOTOS_DIR, "portada.png"), caption="")
-
-    if st.button("Comenzar el recorrido ▶", type="primary", use_container_width=True):
+    portada = os.path.join(FOTOS_DIR, "portada.png")
+    if os.path.exists(portada):
+        mostrar_foto(portada)
+    st.markdown(
+        """
+        <div class="quote">Tres años pueden parecer solamente un número, pero cuando los llenas de recuerdos, personas, lugares, canciones y momentos, se convierten en una historia.</div>
+        """,
+        unsafe_allow_html=True
+    )
+    if st.button("Comenzar el recorrido ▶", key="comenzar", use_container_width=True):
         st.session_state.slide = 1
         st.rerun()
 
 
 def slide_inicio():
-    c1, _ = ACENTOS["inicio"]
-    encabezado("💬", "El inicio de todo", "24 de julio de 2023", delay=0)
-    anecdota(
-        "Todo empezó con una historia tuya: si yo reaccionaba, tú me escribías. Te "
-        "contesté... y minutos después la borraste porque, según tú, &ldquo;solo iba "
-        "para mí&rdquo; (jsjsjs). Así, sin planearlo, empezamos a hablar todos los días "
-        "durante los siguientes tres meses hasta conocernos en persona.",
-        color=c1, delay=1,
+    encabezado("El inicio de todo", "La historia comenzó el 24 de julio de 2023.", "24 · 07 · 2023")
+    st.markdown(
+        """
+        <div class="story">
+        Hay fechas que terminan convirtiéndose en algo mucho más grande de lo que imaginábamos.<br><br>
+        El 24 de julio de 2023 comenzó nuestra historia. Desde ese momento empezamos a crear recuerdos, aprender uno del otro y descubrir todo lo que podíamos vivir juntos.
+        </div>
+        """,
+        unsafe_allow_html=True
     )
-    reproductor_youtube("qA_vm6NpSZY", "My One and Only Love", "John Coltrane", delay=2)
-    mostrar_foto(IMAGENES["inicio"], caption="La captura que lo comenzó todo, contigo 📱")
+    mostrar_foto(FOTOS["inicio"], "Aquí comenzó una parte muy importante de nuestra historia ❤️")
 
 
 def slide_caifanes():
-    c1, _ = ACENTOS["caifanes"]
-    encabezado("🎸", "La primera gran aventura", "Concierto de Caifanes", delay=0)
-    anecdota(
-        "Caifanes es tu banda favorita, y cuando supe que ibas a ir sola al concierto "
-        "no lo pensé dos veces: moví cielo, mar y tierra para conseguir el dinero y no "
-        "dejarte ir sin mí. Esa noche cantamos cada canción como si el mundo se hubiera "
-        "detenido solo para nosotros.",
-        color=c1, delay=1,
+    encabezado("Nuestro concierto de Caifanes", "Una noche que terminó convirtiéndose en uno de nuestros recuerdos.", "CAIFANES 🎸")
+    st.markdown(
+        """
+        <div class="story">
+        Entre música, gente y emoción vivimos una de esas noches que se quedan guardadas.<br><br>
+        Porque no solamente importa a dónde vamos, sino con quién compartimos el momento.
+        </div>
+        """,
+        unsafe_allow_html=True
     )
-    reproductor_youtube("kz_HWReUrFA", "Eso y Más", "Joan Sebastián", delay=2)
-    mostrar_foto(IMAGENES["caifanes"], caption="En el concierto de Caifanes, contigo 🎶")
+    mostrar_foto(FOTOS["caifanes"], "Una noche para recordar 🎸❤️")
 
 
 def slide_diciembre_2023():
-    c1, _ = ACENTOS["diciembre_2023"]
-    encabezado("🚐", "Diciembre 2023", "El viaje que lo cambió todo", delay=0)
-    anecdota(
-        "Renunciamos a nuestros trabajos —yo en Superette, tú en Del Río— para "
-        "lanzarnos a un viaje con mi familia al pueblo de mi papá. Ahí conociste a "
-        "todos y te acoplaste como si siempre hubieras sido parte de la familia: "
-        "cocinando, rompiendo piñata, riendo sin parar.",
-        color=c1, delay=1,
-    )
-    anecdota(
-        "Después de la feria pasó algo bastante vergonzoso (jsjsjs), y ahí quedó "
-        "clarísimo: por ti no me tiembla la mano para lavar, para ayudarte, para "
-        "hacer lo que sea que necesites.",
-        color=c1, delay=2,
-    )
-    anecdota(
-        "De regreso paramos en Mazatlán, compartimos habitación y vivimos experiencias "
-        "increíbles. Una noche íbamos muy rápido en la carretera, abriste la ventana y "
-        "mi papá te regañó... con el tiempo entendimos que no fue con mala intención, jaja.",
-        color=c1, delay=3,
-    )
-    carrusel_fotos("diciembre", IMAGENES["diciembre_2023"], CAPTIONS_DICIEMBRE)
+    encabezado("Diciembre 2023", "Nuestro primer diciembre lleno de recuerdos.", "DICIEMBRE · 2023")
+    anecdota("🏡 El pueblo de mi papá", "Un lugar diferente, pero mucho más especial porque estabas conmigo.")
+    anecdota("🎉 La piñata", "Compartiendo momentos sencillos que terminaron convirtiéndose en recuerdos.")
+    anecdota("🌊 Rumbo a Mazatlán", "Una aventura más de tantas que hemos ido sumando a nuestra historia.")
+    carrusel_fotos(FOTOS["diciembre_2023"], CAPTIONS["diciembre_2023"], "diciembre")
 
 
 def slide_2024():
-    c1, _ = ACENTOS["y2024"]
-    encabezado("🌙", "2024", "Togas, motos y los hijos de la luna", delay=0)
-    anecdota("Junto con mi mamá emprendimos en la venta y renta de togas, estolas y birretes, además de camisetas personalizadas para SHESPAT.", color=c1, delay=1)
-    anecdota("Conseguí mi moto y tú me enseñaste a manejarla como se debe. Verte con el casco puesto me daba tanta risa como ternura.", color=c1, delay=2)
-    anecdota("Me ayudaste a vestirme mejor y a cuidar mi cabello: antes lo llevaba liso, y gracias a ti descubrí que ondulado me quedaba precioso.", color=c1, delay=3)
-    anecdota("Fuimos juntos a la boda de la amiga de tu mamá, donde te veías preciosa, y en Halloween nos pintamos la cara para ir al Parque Central.", color=c1, delay=4)
-    anecdota("Entramos a trabajar juntos al tercer turno en Commscope, convertidos oficialmente en los &ldquo;hijos de la luna&rdquo; 🌙.", color=c1, delay=5)
-    anecdota("Pasamos nuestra primera Navidad juntos en tu casa: intercambio de regalos y estrenamos nuestras botas.", color=c1, delay=6)
-    carrusel_fotos("y2024", IMAGENES["y2024"], CAPTIONS_2024)
+    encabezado("2024", "Un año lleno de cambios, proyectos y momentos juntos.", "2024")
+    anecdota("🎓 SHESPAT", "Emprendiendo juntos con las togas y estolas SHESPAT.")
+    anecdota("🏍️ La moto", "Ese momento en el que empezaste a enseñarme a manejar.")
+    anecdota("💇 Mi cambio de look", "Gracias a ti también llegaron nuevos cambios y nuevas versiones de mí.")
+    anecdota("🎄 Nuestra primera Navidad", "Nuestra primera Navidad juntos, creando una tradición propia.")
+    carrusel_fotos(FOTOS["y2024"], CAPTIONS["y2024"], "y2024")
 
 
 def slide_2025_2026():
-    c1, _ = ACENTOS["y2025_2026"]
-    encabezado("🐰", "2025 y 2026", "Madurez, conejitos y nuevos looks", delay=0)
-    anecdota(
-        "Iniciamos el 2025 en el cumpleaños de mi papá, a quien le regalamos un reloj "
-        "que le encantó. Tuvimos salidas llenas de momentos especiales —orejitas de "
-        "conejo, el cuarto de luces— y en cada foto te veías más hermosa.",
-        color=c1, delay=1,
-    )
-    anecdota(
-        "En 2026 empezamos el año arreglándonos juntos para lo que venía. Te "
-        "regalaron a Carajo y Nena, nuestros conejitos —sí, nuestros hijos 🐰.",
-        color=c1, delay=2,
-    )
-    anecdota(
-        "Te hiciste un cambio radical de look con cabello azul turquesa que te queda "
-        "perfecto. Y vivimos una salida inolvidable a la feria, con esa foto icónica "
-        "frente a la rueda de la fortuna.",
-        color=c1, delay=3,
-    )
-    carrusel_fotos("y2025", IMAGENES["y2025_2026"], CAPTIONS_2025_2026)
+    encabezado("2025 · 2026", "Seguimos acumulando recuerdos.", "NUEVOS RECUERDOS")
+    anecdota("🎁 El reloj para mi papá", "Un detalle que terminó convirtiéndose en otro recuerdo de nuestra historia.")
+    anecdota("🐰 Carajo y Nena", "Nuestros conejitos y dos pequeños integrantes de nuestra historia.")
+    anecdota("🎡 La feria", "La feria, la rueda de la fortuna y otra aventura juntos.")
+    carrusel_fotos(FOTOS["y2025_2026"], CAPTIONS["y2025_2026"], "y2025_2026")
 
 
 def slide_gastronomia():
-    encabezado("🍜", "Nuestro mapa gastronómico", "A donde siempre volvemos, juntos", delay=0)
-    for i, r in enumerate(RESTAURANTES, start=1):
+    encabezado("También hemos comido juntos", "Porque una relación también se construye alrededor de una mesa.", "NUESTROS LUGARES 🍜")
+    for restaurante in RESTAURANTES:
         st.markdown(
             f"""
-            <div class="food-card" style="{_fade_style(i)}">
-                <div class="food-emoji">{r['emoji']}</div>
-                <div><div class="food-name">{r['nombre']}</div><div class="food-note">{r['nota']}</div></div>
+            <div class="restaurant">
+                <div class="restaurant-name">{restaurante["nombre"]}</div>
+                <div class="restaurant-description">{restaurante["descripcion"]}</div>
             </div>
             """,
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
+    st.markdown(
+        """
+        <div class="quote">Al final, muchos de nuestros recuerdos favoritos también tienen algo en común: comida, plática y nosotros dos.</div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 def slide_playlist():
-    encabezado("🎧", "Nuestra banda sonora", "Cada canción, una razón para amarte", delay=0)
-    for i, cancion in enumerate(CANCIONES, start=1):
+    encabezado("Nuestra banda sonora", "11 canciones que, de una u otra manera, forman parte de nuestra historia.", "NUESTRA PLAYLIST 🎵")
+    for indice, cancion in enumerate(CANCIONES, start=1):
         st.markdown(
             f"""
-            <div class="track-row" style="{_fade_style(i)}">
-                <div class="track-num">{i:02d}</div>
-                <div>
-                    <div class="track-title">{cancion['titulo']}</div>
-                    <div class="track-artist">{cancion['artista']}</div>
-                    <div class="track-meaning">{cancion['significado']}</div>
-                </div>
+            <div class="track">
+                <div class="track-number">#{indice:02d}</div>
+                <div class="track-title">{cancion["titulo"]}</div>
+                <div class="track-artist">{cancion["artista"]}</div>
+                <div class="track-meaning">{cancion["significado"]}</div>
             </div>
             """,
-            unsafe_allow_html=True,
+            unsafe_allow_html=True
         )
-        if cancion["video_id"]:
-            reproductor_youtube(cancion["video_id"], alto=70)
 
 
 def slide_galeria():
-    encabezado("📸", "Galería de recuerdos", "Cada foto, un momento contigo", delay=0)
-    extensiones = ("*.jpg", "*.jpeg", "*.png", "*.webp", "*.JPG", "*.JPEG", "*.PNG", "*.WEBP")
-    archivos = []
-    if os.path.isdir(GALERIA_DIR):
-        for ext in extensiones:
-            archivos.extend(glob.glob(os.path.join(GALERIA_DIR, ext)))
-    archivos = sorted(set(archivos))
-
-    if not archivos:
-        st.markdown(
-            f"""
-            <div class="img-placeholder" style="padding:3rem 1rem;">
-                <span style="font-size:2.2rem;">🖼️</span>
-                <span>Aún no hay fotos en la galería</span>
-                <span style="font-size:0.8rem; opacity:0.7;">Agrega tus imágenes en <code>{GALERIA_DIR}/</code> (cualquier nombre)</span>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        return
-
-    galeria_paginada(archivos)
+    encabezado("Galería de recuerdos", "Una colección de pequeños momentos que queremos conservar.", "NUESTROS RECUERDOS 📸")
+    galeria_paginada()
 
 
 def slide_cierre():
-    c1, c2 = ACENTOS["cierre"]
+    dias = dias_para_aniversario()
+    st.markdown(
+        """
+        <div class="hero">
+            <div class="eyebrow">Y ESTO APENAS ES UNA PARTE</div>
+            <div class="love-message">Gracias por estos<br>3 años ❤️</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        """
+        <div class="story">
+        Hemos cambiado, aprendido, reído, salido, comido, viajado y vivido muchas cosas juntos.<br><br>
+        Y aunque este Wrapped solamente puede guardar algunas fotografías y canciones, nuestra historia tiene muchísimos más momentos.<br><br>
+        Gracias por formar parte de mi vida.
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     st.markdown(
         f"""
-        <div style="{_fade_style(0)}">
-            <div class="emoji-badge">💫</div>
-            <div class="chapter-title" style="background: linear-gradient(90deg, {c1}, {c2});
-                 -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                Gracias por estos 3 años
+        <div style="text-align:center;margin:2rem 0;color:rgba(255,255,255,0.55);">
+            Faltan aproximadamente
+            <div style="font-family:'Unbounded',sans-serif;font-size:2rem;margin:0.5rem 0;background:linear-gradient(90deg, #FF3E7F, #FFC857, #8C52FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+                {dias} días
             </div>
+            para nuestro próximo aniversario 💫
         </div>
         """,
-        unsafe_allow_html=True,
-    )
-    anecdota(
-        "De una historia que se borró a los tres meses de mensajes, a un concierto, a "
-        "un viaje que nos cambió, a ser &ldquo;hijos de la luna&rdquo;, a dos conejitos "
-        "que ahora son nuestros hijos. Eres mi camino, mi hogar, mi guía, mi todo. "
-        "Gracias por elegirme cada día, por quedarte, por seguir construyendo esto "
-        "conmigo. Que vengan muchos años más juntos, amor mío. Feliz aniversario. 💫",
-        color=c1, delay=1,
+        unsafe_allow_html=True
     )
     st.markdown(
-        f"""
-        <div class="stats-row" style="{_fade_style(2)}">
-            <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">años</div></div>
-            <div class="stat-item"><div class="stat-num">∞</div><div class="stat-label">por venir</div></div>
-        </div>
+        """
+        <div class="quote">Y si pudiera volver al 24 de julio de 2023, volvería a elegir comenzar esta historia contigo.</div>
         """,
-        unsafe_allow_html=True,
+        unsafe_allow_html=True
     )
-    if st.button("🔄 Volver a vivirlo desde el inicio", type="secondary", use_container_width=True):
-        st.session_state.slide = 0
-        st.rerun()
 
-
-# =============================================================================
-# NAVEGACIÓN Y MAIN
-# =============================================================================
 
 SLIDES = [
-    ("Portada", slide_portada),
-    ("El inicio de todo", slide_inicio),
-    ("Concierto de Caifanes", slide_caifanes),
-    ("Diciembre 2023", slide_diciembre_2023),
-    ("2024", slide_2024),
-    ("2025 y 2026", slide_2025_2026),
-    ("Gastronomía", slide_gastronomia),
-    ("Nuestra banda sonora", slide_playlist),
-    ("Galería de recuerdos", slide_galeria),
-    ("Cierre", slide_cierre),
+    ("Portada", slide_portada, "portada"),
+    ("El inicio de todo", slide_inicio, "inicio"),
+    ("Concierto de Caifanes", slide_caifanes, "caifanes"),
+    ("Diciembre 2023", slide_diciembre_2023, "diciembre_2023"),
+    ("2024", slide_2024, "y2024"),
+    ("2025 y 2026", slide_2025_2026, "y2025_2026"),
+    ("Gastronomía", slide_gastronomia, "gastronomia"),
+    ("Nuestra banda sonora", slide_playlist, "playlist"),
+    ("Galería de recuerdos", slide_galeria, "galeria"),
+    ("Cierre", slide_cierre, "cierre"),
 ]
 
 
-def render_puntos(idx, total):
-    puntos = "".join(f'<div class="dot {"active" if i == idx else ""}"></div>' for i in range(total))
-    st.markdown(f'<div class="dots-container">{puntos}</div>', unsafe_allow_html=True)
+def render_puntos(indice):
+    puntos = ""
+    for i in range(len(SLIDES)):
+        clase = "dot active" if i == indice else "dot"
+        puntos += f'<div class="{clase}"></div>'
+    st.markdown(f'<div class="dots">{puntos}</div>', unsafe_allow_html=True)
 
 
-def render_navegacion(idx, total):
-    st.write("")
+def render_navegacion(indice):
+    total = len(SLIDES)
+    st.markdown(f'<div class="progress-text">{indice + 1} / {total}</div>', unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
-        if idx > 0:
-            if st.button("⬅ Anterior", use_container_width=True, key="nav_prev"):
-                st.session_state.slide = idx - 1
+        if indice > 0:
+            if st.button("← Anterior", key=f"prev_{indice}", use_container_width=True):
+                st.session_state.slide = indice - 1
                 st.rerun()
     with col2:
-        if idx < total - 1:
-            if st.button("Siguiente ➡", type="primary", use_container_width=True, key="nav_next"):
-                st.session_state.slide = idx + 1
+        if indice < total - 1:
+            if st.button("Siguiente →", key=f"next_{indice}", use_container_width=True):
+                st.session_state.slide = indice + 1
                 st.rerun()
 
+
+# ============================================================
+# MAIN
+# ============================================================
 
 def main():
     inyectar_css()
+    musica_fondo()
 
     if "slide" not in st.session_state:
         st.session_state.slide = 0
 
-    total = len(SLIDES)
-    idx = max(0, min(st.session_state.slide, total - 1))
+    indice = st.session_state.slide
+    indice = max(0, min(indice, len(SLIDES) - 1))
+    st.session_state.slide = indice
 
+    # SIDEBAR
     with st.sidebar:
-        st.markdown("#### 🧭 Ir a una sección")
-        titulos = [t for t, _ in SLIDES]
-        seleccion = st.selectbox(" ", titulos, index=idx, label_visibility="collapsed")
-        nueva_idx = titulos.index(seleccion)
-        if nueva_idx != idx:
-            st.session_state.slide = nueva_idx
+        st.markdown("### Nuestro Wrapped 💫")
+        opciones = [slide[0] for slide in SLIDES]
+        
+        seleccion = st.selectbox(
+            "Ir a:",
+            opciones,
+            index=indice,
+            key="selector_slide"
+        )
+        
+        nuevo_indice = opciones.index(seleccion)
+        if nuevo_indice != indice:
+            st.session_state.slide = nuevo_indice
             st.rerun()
 
-    render_puntos(idx, total)
-    SLIDES[idx][1]()
-    render_navegacion(idx, total)
+    render_puntos(indice)
 
-    if idx == total - 1:
+    funcion_slide = SLIDES[indice][1]
+    funcion_slide()
+
+    render_navegacion(indice)
+
+    if indice == len(SLIDES) - 1:
         st.balloons()
 
 

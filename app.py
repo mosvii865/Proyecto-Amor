@@ -37,7 +37,7 @@ def render_html(html: str):
 
 
 # ============================================================
-# MÚSICA DE FONDO (Optimizada y persistente)
+# MÚSICA DE FONDO (Persistente en página principal)
 # ============================================================
 
 @st.cache_data(show_spinner=False)
@@ -326,7 +326,7 @@ RESTAURANTES = [
 
 
 # ============================================================
-# CSS
+# CSS (Encabezado corregido para no bloquear el sidebar)
 # ============================================================
 
 def inyectar_css():
@@ -346,8 +346,14 @@ def inyectar_css():
             color: #ffffff;
         }
 
-        header, footer, #MainMenu {
+        footer, #MainMenu,
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"] {
             visibility: hidden;
+        }
+
+        header {
+            background: transparent !important;
         }
 
         .block-container {
@@ -898,6 +904,16 @@ def render_navegacion(indice):
 
 
 # ============================================================
+# NAVEGACIÓN DESDE EL SIDEBAR
+# ============================================================
+
+def _slide_desde_sidebar():
+    """Se ejecuta SOLO cuando la persona cambia el selectbox del sidebar."""
+    nombres = [slide[0] for slide in SLIDES]
+    st.session_state.slide = nombres.index(st.session_state.selector_slide)
+
+
+# ============================================================
 # MAIN
 # ============================================================
 
@@ -908,31 +924,23 @@ def main():
     if "slide" not in st.session_state:
         st.session_state.slide = 0
 
-    indice = st.session_state.slide
-    indice = max(0, min(indice, len(SLIDES) - 1))
+    indice = max(0, min(st.session_state.slide, len(SLIDES) - 1))
     st.session_state.slide = indice
 
-    # SIDEBAR
+    st.session_state.selector_slide = SLIDES[indice][0]
+
     with st.sidebar:
         st.markdown("### Nuestro Wrapped 💫")
-        opciones = [slide[0] for slide in SLIDES]
-        
-        seleccion = st.selectbox(
+        st.selectbox(
             "Ir a:",
-            opciones,
-            index=indice,
-            key="selector_slide"
+            [slide[0] for slide in SLIDES],
+            key="selector_slide",
+            on_change=_slide_desde_sidebar,
         )
-        
-        nuevo_indice = opciones.index(seleccion)
-        if nuevo_indice != indice:
-            st.session_state.slide = nuevo_indice
-            st.rerun()
 
     render_puntos(indice)
 
-    funcion_slide = SLIDES[indice][1]
-    funcion_slide()
+    SLIDES[indice][1]()
 
     render_navegacion(indice)
 
@@ -942,4 +950,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

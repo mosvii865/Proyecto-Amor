@@ -261,7 +261,7 @@ AUDIO_HTML = f"""
 
 
 # ============================================================
-# HTML DE LA APLICACIÓN (CADENA NORMAL, NO F-STRING)
+# HTML DE LA APLICACIÓN (CADENA NORMAL)
 # ============================================================
 
 HTML_TEMPLATE = """
@@ -784,10 +784,10 @@ html, body {
                 <p class="section-text">11 canciones que terminaron formando parte de nuestra historia.</p>
                 <div class="album"></div>
                 <div class="featured-song">
-                    <div class="song-number">CANCIÓN #01</div>
-                    <div class="song-title">Tiempo para Amarte</div>
-                    <div class="song-artist">Laureano Brizuela</div>
-                    <div class="song-meaning">A pesar de las cuentas, el estrés diario y todas las cosas que tenemos que hacer, siempre quiero encontrar tiempo para ti.</div>
+                    <div class="song-number" id="songNumber">--</div>
+                    <div class="song-title" id="songTitle">--</div>
+                    <div class="song-artist" id="songArtist">--</div>
+                    <div class="song-meaning" id="songMeaning">--</div>
                 </div>
             </div>
         </section>
@@ -840,6 +840,7 @@ const soundBars = document.getElementById("soundBars");
 
 let current = 0;
 let galleryIndex = 0;
+let musicIndex = 0; // Agregado el índice para la música
 let photoIndexes = { december: 0, year2024: 0, year2025: 0 };
 
 const themes = {
@@ -899,6 +900,24 @@ function render2025() {
     renderPhoto("year2025Photo", images[index], DATA.captions.y2025_2026[index]);
 }
 
+// NUEVA FUNCIÓN PARA RENDERIZAR LA MÚSICA DINÁMICA
+function renderMusic() {
+    const songs = DATA.canciones || [];
+    if (!songs.length) return;
+    const index = musicIndex % songs.length;
+    const song = songs[index];
+
+    const num = document.getElementById("songNumber");
+    const title = document.getElementById("songTitle");
+    const artist = document.getElementById("songArtist");
+    const meaning = document.getElementById("songMeaning");
+
+    if (num) num.textContent = "CANCIÓN #" + String(index + 1).padStart(2, "0");
+    if (title) title.textContent = song.titulo;
+    if (artist) artist.textContent = song.artista;
+    if (meaning) meaning.textContent = song.significado;
+}
+
 function renderGallery() {
     const images = DATA.imagenes.galeria || [];
     const photo = document.getElementById("galleryPhoto");
@@ -949,6 +968,7 @@ function showSlide(index, direction) {
     if (current === 4) renderDecember();
     if (current === 5) render2024();
     if (current === 6) render2025();
+    if (current === 8) renderMusic(); // Se llama a renderMusic() cuando entramos en el slide de música
     if (current === 9) renderGallery();
 }
 
@@ -956,9 +976,11 @@ background.style.background = themes.cover;
 const firstBar = document.querySelector(".progress-fill");
 if (firstBar) firstBar.style.width = "100%";
 
+// Primera renderización inicial
 renderDecember();
 render2024();
 render2025();
+renderMusic(); // Renderizamos la primera canción
 renderGallery();
 
 function nextSlide() { if (current < slides.length - 1) showSlide(current + 1, 1); }
@@ -1024,6 +1046,13 @@ setInterval(function () {
         if (images.length > 1) {
             photoIndexes.year2025 = (photoIndexes.year2025 + 1) % images.length;
             render2025();
+        }
+    }
+    if (current === 8) {
+        const songs = DATA.canciones || [];
+        if (songs.length > 1) {
+            musicIndex = (musicIndex + 1) % songs.length;
+            renderMusic(); // Hace rotar las canciones automáticamente
         }
     }
     if (current === 9) {

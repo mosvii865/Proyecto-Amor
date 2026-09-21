@@ -1,78 +1,110 @@
-
 import os
 import base64
 import json
 import html
-import datetime
 
 import streamlit as st
 import streamlit.components.v1 as components
 
 
 # ============================================================
-# CONFIGURACIÓN
+# CONFIGURACIÓN STREAMLIT
 # ============================================================
 
 st.set_page_config(
-    page_title="Nuestro Wrapped 💫",
-    page_icon="💖",
+    page_title="Nuestro Wrapped ❤️",
+    page_icon="❤️",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
+
+# ============================================================
+# RUTAS
+# ============================================================
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-FOTOS_DIR = os.path.join(BASE_DIR, "fotos")
-GALERIA_DIR = os.path.join(FOTOS_DIR, "galeria")
+FOTOS_DIR = os.path.join(
+    BASE_DIR,
+    "fotos"
+)
 
-# Música directamente dentro de Main
-MUSICA_FONDO = os.path.join(BASE_DIR, "musica.mp3")
+GALERIA_DIR = os.path.join(
+    FOTOS_DIR,
+    "galeria"
+)
+
+# IMPORTANTE:
+# La música está directamente dentro de Main
+MUSICA_FONDO = os.path.join(
+    BASE_DIR,
+    "musica.mp3"
+)
 
 
 # ============================================================
-# UTILIDADES
+# FUNCIONES
 # ============================================================
 
 def archivo_base64(ruta):
-    """
-    Convierte una imagen/audio en base64 para que todo el
-    Wrapped funcione dentro de un único componente HTML.
-    """
 
     if not os.path.exists(ruta):
         return None
 
     try:
+
         with open(ruta, "rb") as archivo:
+
             return base64.b64encode(
                 archivo.read()
             ).decode("utf-8")
+
     except Exception:
+
         return None
 
 
 def mime_imagen(ruta):
-    extension = os.path.splitext(ruta)[1].lower()
 
-    return {
-        ".png": "image/png",
-        ".jpg": "image/jpeg",
-        ".jpeg": "image/jpeg",
-        ".webp": "image/webp",
-    }.get(extension, "image/png")
+    extension = (
+        os.path.splitext(ruta)[1]
+        .lower()
+    )
+
+    tipos = {
+
+        ".png":
+            "image/png",
+
+        ".jpg":
+            "image/jpeg",
+
+        ".jpeg":
+            "image/jpeg",
+
+        ".webp":
+            "image/webp",
+
+    }
+
+    return tipos.get(
+        extension,
+        "image/png"
+    )
 
 
 def imagen_data(ruta):
+
     data = archivo_base64(ruta)
 
     if not data:
         return None
 
-    return f"data:{mime_imagen(ruta)};base64,{data}"
-
-
-def esc(texto):
-    return html.escape(str(texto))
+    return (
+        f"data:{mime_imagen(ruta)};"
+        f"base64,{data}"
+    )
 
 
 # ============================================================
@@ -80,91 +112,122 @@ def esc(texto):
 # ============================================================
 
 FOTOS = {
-    "inicio": os.path.join(
-        FOTOS_DIR,
-        "image_0.png"
-    ),
 
-    "caifanes": os.path.join(
-        FOTOS_DIR,
-        "image_1.png"
-    ),
+    "inicio":
+        os.path.join(
+            FOTOS_DIR,
+            "image_0.png"
+        ),
+
+    "caifanes":
+        os.path.join(
+            FOTOS_DIR,
+            "image_1.png"
+        ),
 
     "diciembre_2023": [
+
         os.path.join(
             FOTOS_DIR,
             "image_2.png"
         ),
+
         os.path.join(
             FOTOS_DIR,
             "image_3.png"
         ),
+
         os.path.join(
             FOTOS_DIR,
             "image_4.png"
         ),
+
     ],
 
     "y2024": [
+
         os.path.join(
             FOTOS_DIR,
             "image_5.png"
         ),
+
         os.path.join(
             FOTOS_DIR,
             "image_6.png"
         ),
+
         os.path.join(
             FOTOS_DIR,
             "image_7.png"
         ),
+
         os.path.join(
             FOTOS_DIR,
             "image_8.png"
         ),
+
     ],
 
     "y2025_2026": [
+
         os.path.join(
             FOTOS_DIR,
             "image_9.png"
         ),
+
         os.path.join(
             FOTOS_DIR,
             "image_10.png"
         ),
+
         os.path.join(
             FOTOS_DIR,
             "image_11.png"
         ),
+
     ],
+
 }
 
 
 # ============================================================
-# TEXTOS DE FOTOS
+# TEXTOS DE LAS FOTOS
 # ============================================================
 
 CAPTIONS = {
 
     "diciembre_2023": [
+
         "En el pueblo de mi papá, contigo 🏡",
+
         "Rompiendo la piñata juntos 🎉",
+
         "Rumbo a Mazatlán 🌊",
+
     ],
 
     "y2024": [
+
         "Emprendiendo con las togas SHESPAT 🎓",
+
         "Enseñándome a manejar la moto 🏍️",
-        "Mi cambio de look, gracias a ti 💇",
+
+        "Mi cambio de look 💇",
+
         "Nuestra primera Navidad juntos 🎄",
+
     ],
 
     "y2025_2026": [
+
         "El reloj para mi papá 🎁",
+
         "Carajo y Nena, nuestros conejitos 🐰",
+
         "La feria y la rueda de la fortuna 🎡",
+
     ],
+
 }
 
 
@@ -175,78 +238,98 @@ CAPTIONS = {
 CANCIONES = [
 
     {
-        "titulo": "Tiempo para Amarte",
-        "artista": "Laureano Brizuela",
+        "titulo":
+            "Tiempo para Amarte",
+
+        "artista":
+            "Laureano Brizuela",
+
         "significado":
-            "A pesar de las cuentas, el estrés diario y todas las cosas "
-            "que tenemos que hacer, siempre quiero encontrar tiempo para ti.",
+            "A pesar de las cuentas, el estrés diario y todas "
+            "las cosas que tenemos que hacer, siempre quiero "
+            "encontrar tiempo para ti.",
     },
 
     {
         "titulo":
             "My One and Only Love / They Say It's Wonderful",
+
         "artista":
             "John Coltrane",
+
         "significado":
-            "Mi descubrimiento personal del amor y una canción que terminó "
-            "teniendo un significado muy especial para nosotros.",
+            "Mi descubrimiento personal del amor y una canción "
+            "que terminó teniendo un significado muy especial "
+            "para nosotros.",
     },
 
     {
         "titulo":
             "I Only Have Eyes for You",
+
         "artista":
             "Louis Armstrong",
+
         "significado":
-            "Porque entre todas las personas, lugares y cosas que existen, "
-            "mis ojos siempre terminan buscándote a ti.",
+            "Entre todas las personas, lugares y cosas que "
+            "existen, mis ojos siempre terminan buscándote a ti.",
     },
 
     {
         "titulo":
             "Eso y Más",
+
         "artista":
             "Joan Sebastián",
+
         "significado":
-            "Una canción que representa todo eso que siento y muchas veces "
-            "no sé cómo decirte.",
+            "Una canción que representa todo eso que siento "
+            "y muchas veces no sé cómo decirte.",
     },
 
     {
         "titulo":
             "Diséñame",
+
         "artista":
             "Joan Sebastián",
+
         "significado":
-            "Porque de alguna manera nuestro amor fue construyéndose "
-            "poco a poco, con nuestras propias historias.",
+            "Nuestro amor fue construyéndose poco a poco, "
+            "con nuestras propias historias.",
     },
 
     {
         "titulo":
             "The Nearness of You",
+
         "artista":
             "Ella Fitzgerald & Louis Armstrong",
+
         "significado":
-            "La cercanía de la persona que amas puede hacer que cualquier "
-            "momento cotidiano se sienta especial.",
+            "La cercanía de la persona que amas puede hacer "
+            "que cualquier momento cotidiano se sienta especial.",
     },
 
     {
         "titulo":
             "Only You",
+
         "artista":
             "The Platters",
+
         "significado":
-            "Porque hay personas que simplemente se vuelven únicas "
-            "en nuestra vida.",
+            "Porque hay personas que simplemente se vuelven "
+            "únicas en nuestra vida.",
     },
 
     {
         "titulo":
             "Eres",
+
         "artista":
             "José María Napoleón",
+
         "significado":
             "Una forma de decirte todo lo que significas para mí.",
     },
@@ -254,32 +337,39 @@ CANCIONES = [
     {
         "titulo":
             "Mi Mundo Tú",
+
         "artista":
             "Camilo Sesto",
+
         "significado":
-            "Porque después de estos años, eres una parte enorme "
+            "Después de estos años, eres una parte enorme "
             "de mi mundo.",
     },
 
     {
         "titulo":
             "Cama y Mesa",
+
         "artista":
             "Roberto Carlos",
+
         "significado":
-            "Una canción que habla de compartir la vida, los momentos "
+            "Una canción sobre compartir la vida, los momentos "
             "íntimos y también los cotidianos.",
     },
 
     {
         "titulo":
             "Invítame un cigarro",
+
         "artista":
             "Tradicional / Popular",
+
         "significado":
-            "Una de esas canciones que terminan formando parte "
-            "de nuestra historia.",
+            "Una de esas canciones que terminaron formando "
+            "parte de nuestra historia.",
     },
+
 ]
 
 
@@ -290,25 +380,31 @@ CANCIONES = [
 RESTAURANTES = [
 
     {
-        "nombre": "Ninja Ramen",
+        "nombre":
+            "Ninja Ramen",
+
         "descripcion":
-            "Uno de esos lugares que se volvieron parte de nuestros "
-            "momentos juntos.",
+            "Uno de esos lugares que se volvieron parte "
+            "de nuestros momentos juntos.",
     },
 
     {
-        "nombre": "Ryu Ramen House",
+        "nombre":
+            "Ryu Ramen House",
+
         "descripcion":
-            "Comida, plática y tiempo juntos. Porque hasta salir a comer "
-            "puede convertirse en un recuerdo.",
+            "Comida, plática y tiempo juntos.",
     },
 
     {
-        "nombre": "Trueke Comida & Amigos",
+        "nombre":
+            "Trueke Comida & Amigos",
+
         "descripcion":
-            "Otro lugar que quedó guardado dentro de nuestras pequeñas "
-            "aventuras.",
+            "Otro lugar que quedó guardado dentro "
+            "de nuestras pequeñas aventuras.",
     },
+
 ]
 
 
@@ -318,14 +414,16 @@ RESTAURANTES = [
 
 def obtener_galeria():
 
-    if not os.path.exists(GALERIA_DIR):
+    if not os.path.exists(
+        GALERIA_DIR
+    ):
         return []
 
     extensiones = (
         ".png",
         ".jpg",
         ".jpeg",
-        ".webp",
+        ".webp"
     )
 
     archivos = []
@@ -349,7 +447,7 @@ def obtener_galeria():
 
 
 # ============================================================
-# PREPARAR IMÁGENES PARA JAVASCRIPT
+# PREPARAR IMÁGENES
 # ============================================================
 
 def preparar_imagenes():
@@ -363,38 +461,56 @@ def preparar_imagenes():
 
     if os.path.exists(portada):
 
-        imagenes["portada"] = imagen_data(
-            portada
+        imagenes["portada"] = (
+            imagen_data(portada)
         )
 
     for nombre, valor in FOTOS.items():
 
-        if isinstance(valor, list):
+        if isinstance(
+            valor,
+            list
+        ):
 
             imagenes[nombre] = []
 
             for ruta in valor:
 
-                data = imagen_data(ruta)
+                data = imagen_data(
+                    ruta
+                )
 
                 if data:
-                    imagenes[nombre].append(data)
+
+                    imagenes[
+                        nombre
+                    ].append(data)
 
         else:
 
-            data = imagen_data(valor)
+            data = imagen_data(
+                valor
+            )
 
             if data:
-                imagenes[nombre] = data
+
+                imagenes[
+                    nombre
+                ] = data
 
     imagenes["galeria"] = []
 
     for ruta in obtener_galeria():
 
-        data = imagen_data(ruta)
+        data = imagen_data(
+            ruta
+        )
 
         if data:
-            imagenes["galeria"].append(data)
+
+            imagenes[
+                "galeria"
+            ].append(data)
 
     return imagenes
 
@@ -412,45 +528,66 @@ MUSICA_B64 = archivo_base64(
 
 
 # ============================================================
-# DATOS PARA JAVASCRIPT
+# DATOS JAVASCRIPT
 # ============================================================
 
-datos_js = {
-    "imagenes": IMAGENES,
-    "canciones": CANCIONES,
-    "restaurantes": RESTAURANTES,
-    "captions": CAPTIONS,
+DATOS = {
+
+    "imagenes":
+        IMAGENES,
+
+    "canciones":
+        CANCIONES,
+
+    "restaurantes":
+        RESTAURANTES,
+
+    "captions":
+        CAPTIONS,
+
 }
 
+
 DATOS_JSON = json.dumps(
-    datos_js,
+    DATOS,
     ensure_ascii=False
 )
 
 
 # ============================================================
-# HTML COMPLETO
+# AUDIO
 # ============================================================
-
-audio_html = ""
 
 if MUSICA_B64:
 
-    audio_html = f"""
+    AUDIO_HTML = f"""
+
     <audio
         id="backgroundMusic"
         preload="auto"
         loop
     >
+
         <source
             src="data:audio/mpeg;base64,{MUSICA_B64}"
             type="audio/mpeg"
         >
+
     </audio>
+
     """
 
+else:
+
+    AUDIO_HTML = ""
+
+
+# ============================================================
+# HTML
+# ============================================================
 
 HTML = f"""
+
 <!DOCTYPE html>
 
 <html lang="es">
@@ -467,122 +604,137 @@ HTML = f"""
              user-scalable=no"
 />
 
-<title>
-Nuestro Wrapped
-</title>
-
 
 <style>
 
-/* ==========================================================
-   FUENTES
-   ========================================================== */
-
-@import url(
-'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@400;500;600;700;800&display=swap'
-);
-
-
-/* ==========================================================
+/* ============================================================
    RESET
-   ========================================================== */
+   ============================================================ */
 
 * {{
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
+
+    box-sizing:
+        border-box;
+
+    -webkit-tap-highlight-color:
+        transparent;
+
 }}
 
 
 html,
 body {{
 
-    width: 100%;
-    height: 100%;
+    margin:
+        0;
 
-    margin: 0;
-    padding: 0;
+    padding:
+        0;
 
-    overflow: hidden;
+    width:
+        100%;
 
-    background: #07030b;
+    height:
+        100%;
+
+    overflow:
+        hidden;
+
+    background:
+        #07030b;
+
+    color:
+        white;
 
     font-family:
-        'Manrope',
+        Arial,
         sans-serif;
 
-    color: white;
-
     touch-action:
-        manipulation;
-
-}}
-
-
-body {{
-
-    overscroll-behavior:
         none;
 
 }}
 
 
-/* ==========================================================
+/* ============================================================
    APP
-   ========================================================== */
+   ============================================================ */
 
 #app {{
 
-    position: fixed;
+    position:
+        fixed;
 
-    inset: 0;
+    inset:
+        0;
 
-    width: 100vw;
-    height: 100dvh;
+    width:
+        100vw;
 
-    overflow: hidden;
+    height:
+        100dvh;
 
-    background: #07030b;
+    overflow:
+        hidden;
+
+    background:
+        #07030b;
+
+    touch-action:
+        none;
+
+    user-select:
+        none;
+
+    -webkit-user-select:
+        none;
 
 }}
 
 
-/* ==========================================================
-   FONDO DINÁMICO
-   ========================================================== */
+/* ============================================================
+   FONDO
+   ============================================================ */
 
 #background {{
 
-    position: absolute;
+    position:
+        absolute;
 
-    inset: -10%;
+    inset:
+        -10%;
 
-    z-index: 0;
+    z-index:
+        0;
 
     transition:
-        background
-        0.8s ease,
-        transform
-        1.2s ease;
+        background 0.7s ease;
 
 }}
 
 
 #background::before {{
 
-    content: "";
+    content:
+        "";
 
-    position: absolute;
+    position:
+        absolute;
 
-    width: 70vw;
-    height: 70vw;
+    width:
+        70vw;
 
-    max-width: 800px;
-    max-height: 800px;
+    height:
+        70vw;
 
-    border-radius: 50%;
+    left:
+        -25%;
 
-    left: -25%;
-    top: -15%;
+    top:
+        -15%;
+
+    border-radius:
+        50%;
 
     background:
         radial-gradient(
@@ -591,10 +743,11 @@ body {{
             transparent 68%
         );
 
-    filter: blur(15px);
+    filter:
+        blur(15px);
 
     animation:
-        floatOne
+        floatingOne
         10s
         ease-in-out
         infinite;
@@ -604,32 +757,39 @@ body {{
 
 #background::after {{
 
-    content: "";
+    content:
+        "";
 
-    position: absolute;
+    position:
+        absolute;
 
-    width: 65vw;
-    height: 65vw;
+    width:
+        65vw;
 
-    max-width: 750px;
-    max-height: 750px;
+    height:
+        65vw;
 
-    border-radius: 50%;
+    right:
+        -25%;
 
-    right: -25%;
-    bottom: -15%;
+    bottom:
+        -15%;
+
+    border-radius:
+        50%;
 
     background:
         radial-gradient(
             circle,
-            rgba(255,255,255,.10),
+            rgba(255,255,255,.1),
             transparent 68%
         );
 
-    filter: blur(20px);
+    filter:
+        blur(20px);
 
     animation:
-        floatTwo
+        floatingTwo
         12s
         ease-in-out
         infinite;
@@ -637,99 +797,115 @@ body {{
 }}
 
 
-@keyframes floatOne {{
+@keyframes floatingOne {{
 
     0%,
     100% {{
         transform:
-            translate3d(0,0,0)
+            translate(0,0)
             scale(1);
     }}
 
     50% {{
         transform:
-            translate3d(30px,40px,0)
+            translate(30px,40px)
             scale(1.1);
     }}
 
 }}
 
 
-@keyframes floatTwo {{
+@keyframes floatingTwo {{
 
     0%,
     100% {{
         transform:
-            translate3d(0,0,0)
+            translate(0,0)
             scale(1);
     }}
 
     50% {{
         transform:
-            translate3d(-35px,-25px,0)
+            translate(-30px,-25px)
             scale(1.08);
     }}
 
 }}
 
 
-/* ==========================================================
+/* ============================================================
    GRANO
-   ========================================================== */
+   ============================================================ */
 
 #grain {{
 
-    position: absolute;
+    position:
+        absolute;
 
-    inset: 0;
+    inset:
+        0;
 
-    z-index: 30;
+    z-index:
+        40;
 
-    pointer-events: none;
+    pointer-events:
+        none;
 
-    opacity: .07;
+    opacity:
+        .055;
 
     background-image:
-        url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
 
 }}
 
 
-/* ==========================================================
+/* ============================================================
    PROGRESO
-   ========================================================== */
+   ============================================================ */
 
 #progress {{
 
-    position: absolute;
-
-    z-index: 50;
+    position:
+        absolute;
 
     top:
         max(
-            12px,
+            10px,
             env(safe-area-inset-top)
         );
 
-    left: 12px;
-    right: 12px;
+    left:
+        12px;
 
-    display: flex;
+    right:
+        12px;
 
-    gap: 4px;
+    z-index:
+        100;
+
+    display:
+        flex;
+
+    gap:
+        4px;
 
 }}
 
 
 .progress-bar {{
 
-    height: 3px;
+    flex:
+        1;
 
-    flex: 1;
+    height:
+        3px;
 
-    border-radius: 999px;
+    border-radius:
+        10px;
 
-    overflow: hidden;
+    overflow:
+        hidden;
 
     background:
         rgba(255,255,255,.22);
@@ -739,46 +915,52 @@ body {{
 
 .progress-fill {{
 
-    width: 0%;
+    width:
+        0%;
 
-    height: 100%;
+    height:
+        100%;
+
+    border-radius:
+        inherit;
 
     background:
-        rgba(255,255,255,.95);
-
-    border-radius: inherit;
-
-    transition:
-        width .25s linear;
+        white;
 
 }}
 
 
-/* ==========================================================
+/* ============================================================
    CONTADOR
-   ========================================================== */
+   ============================================================ */
 
 #counter {{
 
-    position: absolute;
+    position:
+        absolute;
 
-    z-index: 50;
+    z-index:
+        100;
+
+    right:
+        15px;
 
     top:
         calc(
             max(
-                12px,
+                10px,
                 env(safe-area-inset-top)
             ) + 14px
         );
 
-    right: 16px;
+    font-size:
+        9px;
 
-    font-size: 9px;
+    font-weight:
+        800;
 
-    letter-spacing: .15em;
-
-    font-weight: 800;
+    letter-spacing:
+        .15em;
 
     color:
         rgba(255,255,255,.6);
@@ -786,66 +968,84 @@ body {{
 }}
 
 
-/* ==========================================================
+/* ============================================================
    SLIDES
-   ========================================================== */
+   ============================================================ */
 
 #slides {{
 
-    position: relative;
+    position:
+        relative;
 
-    z-index: 10;
+    width:
+        100%;
 
-    width: 100%;
-    height: 100%;
+    height:
+        100%;
+
+    z-index:
+        10;
 
 }}
 
 
 .slide {{
 
-    position: absolute;
+    position:
+        absolute;
 
-    inset: 0;
+    inset:
+        0;
 
-    display: flex;
+    width:
+        100%;
 
-    flex-direction: column;
-
-    justify-content: center;
-
-    align-items: center;
+    height:
+        100%;
 
     padding:
-        65px
-        clamp(20px, 5vw, 70px)
+        60px 20px
         calc(
             55px +
             env(safe-area-inset-bottom)
         );
 
-    opacity: 0;
+    display:
+        flex;
 
-    pointer-events: none;
+    justify-content:
+        center;
+
+    align-items:
+        center;
+
+    opacity:
+        0;
+
+    pointer-events:
+        none;
 
     transform:
-        translateX(70px)
-        scale(.96);
+        translateX(60px)
+        scale(.97);
 
     transition:
-        opacity .55s cubic-bezier(.2,.8,.2,1),
-        transform .65s cubic-bezier(.2,.8,.2,1);
+        opacity .5s ease,
+        transform .6s ease;
 
-    overflow: hidden;
+    overflow:
+        hidden;
 
 }}
 
 
 .slide.active {{
 
-    opacity: 1;
+    opacity:
+        1;
 
-    pointer-events: auto;
+    pointer-events:
+        auto;
 
     transform:
         translateX(0)
@@ -857,93 +1057,119 @@ body {{
 .slide.previous {{
 
     transform:
-        translateX(-70px)
-        scale(.96);
+        translateX(-60px)
+        scale(.97);
 
 }}
 
 
-/* ==========================================================
+/* ============================================================
    CONTENIDO
-   ========================================================== */
+   ============================================================ */
 
 .content {{
 
-    width: 100%;
+    width:
+        100%;
 
-    max-width: 850px;
+    max-width:
+        850px;
 
-    height: 100%;
+    height:
+        100%;
 
-    display: flex;
+    display:
+        flex;
 
-    flex-direction: column;
+    flex-direction:
+        column;
 
-    justify-content: center;
+    justify-content:
+        center;
 
-    align-items: center;
+    align-items:
+        center;
 
-    text-align: center;
+    text-align:
+        center;
 
-    overflow-y: auto;
+    overflow-y:
+        auto;
 
-    scrollbar-width: none;
+    scrollbar-width:
+        none;
 
 }}
 
 
 .content::-webkit-scrollbar {{
-    display: none;
+    display:
+        none;
 }}
 
 
-/* ==========================================================
+/* ============================================================
    TIPOGRAFÍA
-   ========================================================== */
+   ============================================================ */
 
 .eyebrow {{
 
     font-size:
-        clamp(9px, 2.3vw, 12px);
+        clamp(
+            9px,
+            2.3vw,
+            12px
+        );
 
     letter-spacing:
-        .24em;
+        .23em;
 
     text-transform:
         uppercase;
 
-    font-weight: 800;
+    font-weight:
+        800;
 
     color:
-        rgba(255,255,255,.68);
+        rgba(255,255,255,.65);
 
-    margin-bottom: 14px;
+    margin-bottom:
+        15px;
+
+}}
+
+
+.title,
+.section-title,
+.final-title {{
+
+    font-family:
+        Arial,
+        sans-serif;
+
+    font-weight:
+        900;
+
+    line-height:
+        .98;
+
+    letter-spacing:
+        -.065em;
+
+    margin:
+        0;
 
 }}
 
 
 .title {{
 
-    font-family:
-        'Unbounded',
-        sans-serif;
-
     font-size:
         clamp(
-            2.5rem,
+            2.8rem,
             12vw,
             7rem
         );
-
-    line-height:
-        .98;
-
-    letter-spacing:
-        -.075em;
-
-    font-weight: 800;
-
-    margin: 0;
 
     background:
         linear-gradient(
@@ -963,123 +1189,51 @@ body {{
 }}
 
 
+.section-title {{
+
+    font-size:
+        clamp(
+            2rem,
+            8vw,
+            5rem
+        );
+
+}}
+
+
 .subtitle {{
 
     max-width:
         580px;
 
     margin-top:
-        22px;
+        20px;
 
     color:
         rgba(255,255,255,.72);
 
     font-size:
         clamp(
-            .88rem,
+            .9rem,
             3vw,
             1.1rem
         );
 
     line-height:
-        1.75;
+        1.7;
 
 }}
 
 
-.section-title {{
-
-    font-family:
-        'Unbounded',
-        sans-serif;
-
-    font-size:
-        clamp(
-            1.8rem,
-            8vw,
-            4.8rem
-        );
-
-    line-height:
-        1.05;
-
-    letter-spacing:
-        -.065em;
-
-    font-weight:
-        800;
-
-    margin:
-        0;
-
-}}
-
-
-.section-text {{
-
-    color:
-        rgba(255,255,255,.65);
-
-    max-width:
-        600px;
-
-    line-height:
-        1.75;
-
-    margin-top:
-        16px;
-
-}}
-
-
-/* ==========================================================
-   BOTÓN INVISIBLE / TAP
-   ========================================================== */
-
-.tap-hint {{
-
-    position:
-        absolute;
-
-    bottom:
-        calc(
-            20px +
-            env(safe-area-inset-bottom)
-        );
-
-    left: 50%;
-
-    transform:
-        translateX(-50%);
-
-    font-size:
-        9px;
-
-    letter-spacing:
-        .18em;
-
-    color:
-        rgba(255,255,255,.35);
-
-    text-transform:
-        uppercase;
-
-}}
-
-
-/* ==========================================================
+/* ============================================================
    PORTADA
-   ========================================================== */
+   ============================================================ */
 
 .cover-number {{
 
-    font-family:
-        'Unbounded',
-        sans-serif;
-
     font-size:
         clamp(
-            6rem,
+            7rem,
             30vw,
             15rem
         );
@@ -1088,10 +1242,10 @@ body {{
         .7;
 
     font-weight:
-        800;
+        900;
 
     letter-spacing:
-        -.12em;
+        -.13em;
 
     background:
         linear-gradient(
@@ -1108,17 +1262,17 @@ body {{
     -webkit-text-fill-color:
         transparent;
 
-    opacity:
-        .95;
-
 }}
 
 
-/* ==========================================================
-   IMÁGENES
-   ========================================================== */
+/* ============================================================
+   FOTOS
+   ============================================================ */
 
 .photo-frame {{
+
+    position:
+        relative;
 
     width:
         min(
@@ -1127,45 +1281,25 @@ body {{
         );
 
     max-height:
-        58vh;
+        50vh;
 
     margin:
-        24px auto;
-
-    border-radius:
-        clamp(
-            20px,
-            5vw,
-            36px
-        );
+        20px auto;
 
     overflow:
         hidden;
 
-    position:
-        relative;
-
-    box-shadow:
-        0 35px 90px
-        rgba(0,0,0,.45);
+    border-radius:
+        28px;
 
     border:
         1px solid
         rgba(255,255,255,.12);
 
-    transform:
-        rotate(-1deg);
+    box-shadow:
+        0 30px 80px
+        rgba(0,0,0,.45);
 
-    transition:
-        transform .4s ease;
-
-}}
-
-
-.photo-frame:hover {{
-    transform:
-        rotate(0deg)
-        scale(1.015);
 }}
 
 
@@ -1178,7 +1312,7 @@ body {{
         100%;
 
     max-height:
-        58vh;
+        50vh;
 
     object-fit:
         cover;
@@ -1201,9 +1335,7 @@ body {{
         0;
 
     padding:
-        55px
-        18px
-        18px;
+        50px 18px 18px;
 
     text-align:
         left;
@@ -1211,70 +1343,29 @@ body {{
     background:
         linear-gradient(
             transparent,
-            rgba(0,0,0,.8)
+            rgba(0,0,0,.85)
         );
 
     font-weight:
         700;
 
     font-size:
-        .85rem;
+        .8rem;
 
 }}
 
 
-/* ==========================================================
-   CARD
-   ========================================================== */
+/* ============================================================
+   ESTADÍSTICAS
+   ============================================================ */
 
-.story-card {{
+.stats {{
 
     width:
         min(
             100%,
-            620px
+            650px
         );
-
-    padding:
-        clamp(
-            18px,
-            5vw,
-            30px
-        );
-
-    border-radius:
-        28px;
-
-    background:
-        rgba(255,255,255,.07);
-
-    border:
-        1px solid
-        rgba(255,255,255,.09);
-
-    backdrop-filter:
-        blur(20px);
-
-    -webkit-backdrop-filter:
-        blur(20px);
-
-    color:
-        rgba(255,255,255,.8);
-
-    line-height:
-        1.8;
-
-    text-align:
-        left;
-
-}}
-
-
-/* ==========================================================
-   ESTADÍSTICAS
-   ========================================================== */
-
-.stats {{
 
     display:
         grid;
@@ -1283,16 +1374,10 @@ body {{
         repeat(2, 1fr);
 
     gap:
-        9px;
-
-    width:
-        min(
-            100%,
-            650px
-        );
+        10px;
 
     margin-top:
-        25px;
+        24px;
 
 }}
 
@@ -1300,13 +1385,13 @@ body {{
 .stat {{
 
     min-height:
-        145px;
+        135px;
 
     padding:
         20px;
 
     border-radius:
-        25px;
+        24px;
 
     display:
         flex;
@@ -1321,24 +1406,19 @@ body {{
         left;
 
     background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,.11),
-            rgba(255,255,255,.035)
-        );
+        rgba(255,255,255,.07);
 
     border:
         1px solid
         rgba(255,255,255,.09);
 
+    backdrop-filter:
+        blur(15px);
+
 }}
 
 
 .stat-number {{
-
-    font-family:
-        'Unbounded',
-        sans-serif;
 
     font-size:
         clamp(
@@ -1348,50 +1428,46 @@ body {{
         );
 
     font-weight:
-        800;
+        900;
 
 }}
 
 
 .stat-label {{
 
-    color:
-        rgba(255,255,255,.5);
-
     font-size:
         9px;
 
-    letter-spacing:
-        .13em;
-
     font-weight:
         800;
+
+    letter-spacing:
+        .12em;
+
+    color:
+        rgba(255,255,255,.5);
 
 }}
 
 
-/* ==========================================================
-   BIG DATE
-   ========================================================== */
+/* ============================================================
+   FECHA
+   ============================================================ */
 
 .big-date {{
 
-    font-family:
-        'Unbounded',
-        sans-serif;
-
     font-size:
         clamp(
-            5rem,
-            27vw,
+            6rem,
+            28vw,
             12rem
         );
 
-    font-weight:
-        800;
-
     line-height:
         .8;
+
+    font-weight:
+        900;
 
     letter-spacing:
         -.1em;
@@ -1415,9 +1491,30 @@ body {{
 }}
 
 
-/* ==========================================================
+/* ============================================================
+   TEXTOS
+   ============================================================ */
+
+.section-text {{
+
+    max-width:
+        620px;
+
+    margin-top:
+        15px;
+
+    color:
+        rgba(255,255,255,.63);
+
+    line-height:
+        1.75;
+
+}}
+
+
+/* ============================================================
    MEMORIAS
-   ========================================================== */
+   ============================================================ */
 
 .memories {{
 
@@ -1429,6 +1526,9 @@ body {{
 
     text-align:
         left;
+
+    margin-top:
+        10px;
 
 }}
 
@@ -1442,7 +1542,7 @@ body {{
         13px;
 
     padding:
-        15px 0;
+        14px 0;
 
     border-bottom:
         1px solid
@@ -1470,13 +1570,13 @@ body {{
 .memory-text {{
 
     color:
-        rgba(255,255,255,.58);
+        rgba(255,255,255,.55);
 
     font-size:
-        .82rem;
+        .8rem;
 
     line-height:
-        1.55;
+        1.5;
 
     margin-top:
         3px;
@@ -1484,9 +1584,93 @@ body {{
 }}
 
 
-/* ==========================================================
-   PLAYLIST
-   ========================================================== */
+/* ============================================================
+   RESTAURANTES
+   ============================================================ */
+
+.places {{
+
+    width:
+        min(
+            100%,
+            650px
+        );
+
+    margin-top:
+        15px;
+
+}}
+
+
+.place {{
+
+    padding:
+        17px;
+
+    margin:
+        8px 0;
+
+    border-radius:
+        22px;
+
+    background:
+        rgba(255,255,255,.06);
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    text-align:
+        left;
+
+}}
+
+
+.place-number {{
+
+    font-size:
+        1.4rem;
+
+    font-weight:
+        900;
+
+    color:
+        rgba(255,255,255,.2);
+
+}}
+
+
+.place-name {{
+
+    margin-top:
+        6px;
+
+    font-weight:
+        900;
+
+}}
+
+
+.place-description {{
+
+    margin-top:
+        5px;
+
+    color:
+        rgba(255,255,255,.5);
+
+    font-size:
+        .78rem;
+
+    line-height:
+        1.5;
+
+}}
+
+
+/* ============================================================
+   MÚSICA
+   ============================================================ */
 
 .album {{
 
@@ -1499,8 +1683,20 @@ body {{
     aspect-ratio:
         1;
 
+    margin:
+        22px 0;
+
     border-radius:
-        24px;
+        25px;
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    align-items:
+        center;
 
     background:
         linear-gradient(
@@ -1510,27 +1706,9 @@ body {{
             #7a38ff
         );
 
-    display:
-        flex;
-
-    align-items:
-        center;
-
-    justify-content:
-        center;
-
-    margin:
-        22px 0;
-
     box-shadow:
         0 25px 70px
-        rgba(0,0,0,.4);
-
-    position:
-        relative;
-
-    overflow:
-        hidden;
+        rgba(0,0,0,.45);
 
 }}
 
@@ -1540,44 +1718,15 @@ body {{
     content:
         "♪";
 
-    font-family:
-        Georgia;
-
     font-size:
-        10rem;
+        9rem;
 
-    line-height:
-        1;
+    font-family:
+        Georgia,
+        serif;
 
     color:
         rgba(255,255,255,.9);
-
-    transform:
-        rotate(-15deg);
-
-}}
-
-
-.album::after {{
-
-    content:
-        "";
-
-    position:
-        absolute;
-
-    width:
-        70%;
-
-    height:
-        70%;
-
-    border:
-        1px solid
-        rgba(255,255,255,.25);
-
-    border-radius:
-        50%;
 
 }}
 
@@ -1612,10 +1761,6 @@ body {{
 
 .song-title {{
 
-    font-family:
-        'Unbounded',
-        sans-serif;
-
     font-size:
         clamp(
             1.3rem,
@@ -1624,13 +1769,10 @@ body {{
         );
 
     font-weight:
-        800;
-
-    line-height:
-        1.15;
+        900;
 
     margin-top:
-        8px;
+        7px;
 
 }}
 
@@ -1640,203 +1782,38 @@ body {{
     color:
         #ffd447;
 
-    margin-top:
-        7px;
-
     font-size:
         .85rem;
 
     font-weight:
         700;
 
+    margin-top:
+        6px;
+
 }}
 
 
 .song-meaning {{
 
-    margin-top:
-        15px;
-
     color:
-        rgba(255,255,255,.6);
+        rgba(255,255,255,.58);
 
     line-height:
         1.7;
 
     font-size:
-        .84rem;
-
-}}
-
-
-/* ==========================================================
-   SONG LIST
-   ========================================================== */
-
-.song-list {{
-
-    width:
-        min(
-            100%,
-            650px
-        );
+        .82rem;
 
     margin-top:
-        20px;
+        13px;
 
 }}
 
 
-.song-row {{
-
-    display:
-        grid;
-
-    grid-template-columns:
-        35px 1fr;
-
-    text-align:
-        left;
-
-    gap:
-        10px;
-
-    padding:
-        12px 0;
-
-    border-bottom:
-        1px solid
-        rgba(255,255,255,.07);
-
-}}
-
-
-.song-index {{
-
-    color:
-        rgba(255,255,255,.3);
-
-    font-family:
-        'Unbounded';
-
-    font-size:
-        9px;
-
-}}
-
-
-.song-name {{
-
-    font-weight:
-        800;
-
-    font-size:
-        .85rem;
-
-}}
-
-
-.song-artist-small {{
-
-    color:
-        rgba(255,255,255,.45);
-
-    font-size:
-        .72rem;
-
-    margin-top:
-        3px;
-
-}}
-
-
-/* ==========================================================
-   RESTAURANTES
-   ========================================================== */
-
-.places {{
-
-    width:
-        min(
-            100%,
-            650px
-        );
-
-}}
-
-
-.place {{
-
-    padding:
-        18px;
-
-    border-radius:
-        24px;
-
-    margin:
-        9px 0;
-
-    text-align:
-        left;
-
-    background:
-        rgba(255,255,255,.065);
-
-    border:
-        1px solid
-        rgba(255,255,255,.08);
-
-}}
-
-
-.place-number {{
-
-    font-family:
-        'Unbounded';
-
-    color:
-        rgba(255,255,255,.2);
-
-    font-size:
-        1.5rem;
-
-}}
-
-
-.place-name {{
-
-    font-family:
-        'Unbounded';
-
-    font-size:
-        .85rem;
-
-    margin-top:
-        8px;
-
-}}
-
-
-.place-description {{
-
-    color:
-        rgba(255,255,255,.55);
-
-    font-size:
-        .78rem;
-
-    line-height:
-        1.6;
-
-    margin-top:
-        7px;
-
-}}
-
-
-/* ==========================================================
+/* ============================================================
    GALERÍA
-   ========================================================== */
+   ============================================================ */
 
 .gallery-photo {{
 
@@ -1848,19 +1825,22 @@ body {{
 
     height:
         min(
-            68vh,
+            60vh,
             650px
         );
 
-    border-radius:
-        32px;
+    margin:
+        20px auto;
 
     overflow:
         hidden;
 
+    border-radius:
+        30px;
+
     box-shadow:
-        0 35px 90px
-        rgba(0,0,0,.45);
+        0 30px 80px
+        rgba(0,0,0,.5);
 
 }}
 
@@ -1879,31 +1859,18 @@ body {{
 }}
 
 
-/* ==========================================================
+/* ============================================================
    FINAL
-   ========================================================== */
+   ============================================================ */
 
 .final-title {{
 
-    font-family:
-        'Unbounded',
-        sans-serif;
-
     font-size:
         clamp(
-            2rem,
+            2.2rem,
             10vw,
             5rem
         );
-
-    line-height:
-        1.08;
-
-    letter-spacing:
-        -.07em;
-
-    font-weight:
-        800;
 
     background:
         linear-gradient(
@@ -1924,20 +1891,19 @@ body {{
 
 .days-label {{
 
-    color:
-        rgba(255,255,255,.5);
-
     margin-top:
-        35px;
+        28px;
+
+    color:
+        rgba(255,255,255,.48);
 
 }}
 
 
 .days-number {{
 
-    font-family:
-        'Unbounded',
-        sans-serif;
+    margin-top:
+        5px;
 
     font-size:
         clamp(
@@ -1947,35 +1913,31 @@ body {{
         );
 
     font-weight:
-        800;
-
-    margin-top:
-        5px;
+        900;
 
 }}
 
 
 .quote {{
 
-    margin-top:
-        30px;
-
     max-width:
         600px;
 
-    font-family:
-        'Unbounded',
-        sans-serif;
+    margin-top:
+        28px;
 
     font-size:
         clamp(
             1rem,
             4vw,
-            1.5rem
+            1.45rem
         );
 
+    font-weight:
+        800;
+
     line-height:
-        1.55;
+        1.5;
 
     background:
         linear-gradient(
@@ -1994,9 +1956,9 @@ body {{
 }}
 
 
-/* ==========================================================
-   MÚSICA
-   ========================================================== */
+/* ============================================================
+   MÚSICA - BOTÓN
+   ============================================================ */
 
 #musicControl {{
 
@@ -2004,14 +1966,14 @@ body {{
         absolute;
 
     z-index:
-        100;
+        500;
 
     right:
         16px;
 
     bottom:
         calc(
-            18px +
+            17px +
             env(safe-area-inset-bottom)
         );
 
@@ -2040,26 +2002,22 @@ body {{
     display:
         flex;
 
-    align-items:
-        center;
-
     justify-content:
         center;
 
-    font-size:
-        16px;
+    align-items:
+        center;
 
-    cursor:
-        pointer;
+    padding:
+        0;
 
 }}
 
 
-/* ==========================================================
-   INDICADOR DE SONIDO
-   ========================================================== */
-
 .sound-bars {{
+
+    height:
+        16px;
 
     display:
         flex;
@@ -2067,14 +2025,8 @@ body {{
     align-items:
         flex-end;
 
-    justify-content:
-        center;
-
     gap:
         2px;
-
-    height:
-        16px;
 
 }}
 
@@ -2085,132 +2037,107 @@ body {{
         2px;
 
     height:
-        7px;
+        6px;
 
     background:
         white;
 
     border-radius:
-        5px;
+        4px;
 
 }}
 
 
 .music-playing .sound-bar:nth-child(1) {{
+
     animation:
-        sound .6s infinite alternate;
+        sound .55s infinite alternate;
+
 }}
 
 
 .music-playing .sound-bar:nth-child(2) {{
+
     animation:
-        sound .45s infinite alternate;
+        sound .4s infinite alternate;
+
 }}
 
 
 .music-playing .sound-bar:nth-child(3) {{
+
     animation:
         sound .7s infinite alternate;
+
 }}
 
 
 @keyframes sound {{
 
     from {{
-        height: 4px;
+        height:
+            4px;
     }}
 
     to {{
-        height: 15px;
+        height:
+            15px;
     }}
 
 }}
 
 
-/* ==========================================================
-   DESKTOP
-   ========================================================== */
+/* ============================================================
+   MOBILE
+   ============================================================ */
 
-@media (min-width: 800px) {{
-
-    .slide {{
-        padding:
-            70px
-            40px
-            60px;
-    }}
-
-    .tap-hint {{
-        display: none;
-    }}
-
-}}
-
-
-/* ==========================================================
-   TELÉFONO PEQUEÑO
-   ========================================================== */
-
-@media (max-height: 700px) and (max-width: 600px) {{
-
-    .slide {{
-        padding-top:
-            55px;
-    }}
-
-    .section-title {{
-        font-size:
-            1.7rem;
-    }}
-
-    .photo-frame {{
-        max-height:
-            43vh;
-    }}
-
-    .photo-frame img {{
-        max-height:
-            43vh;
-    }}
-
-    .stat {{
-        min-height:
-            110px;
-    }}
-
-}}
-
-
-/* ==========================================================
-   SAFE AREA
-   ========================================================== */
-
-@supports (
-    padding:
-    max(
-        0px,
-        env(safe-area-inset-top)
-    )
+@media (
+    max-width: 600px
 ) {{
 
     .slide {{
-        padding-top:
-            max(
-                60px,
-                calc(
-                    45px +
-                    env(safe-area-inset-top)
-                )
+
+        padding:
+            60px 18px
+            calc(
+                55px +
+                env(safe-area-inset-bottom)
             );
 
-        padding-bottom:
-            max(
-                55px,
-                calc(
-                    40px +
-                    env(safe-area-inset-bottom)
-                )
-            );
+    }}
+
+}}
+
+
+/* ============================================================
+   PANTALLAS PEQUEÑAS
+   ============================================================ */
+
+@media (
+    max-width: 600px
+) and (
+    max-height: 700px
+) {{
+
+    .photo-frame {{
+
+        max-height:
+            38vh;
+
+    }}
+
+    .photo-frame img {{
+
+        max-height:
+            38vh;
+
+    }}
+
+    .stat {{
+
+        min-height:
+            105px;
+
     }}
 
 }}
@@ -2225,11 +2152,15 @@ body {{
 
 <div id="app">
 
+
     <div id="background"></div>
+
 
     <div id="grain"></div>
 
+
     <div id="progress"></div>
+
 
     <div id="counter">
         01 / 11
@@ -2239,9 +2170,9 @@ body {{
     <div id="slides">
 
 
-        <!-- ==================================================
-             01 PORTADA
-             ================================================== -->
+        <!-- =================================================
+             01
+             ================================================= -->
 
         <section
             class="slide active"
@@ -2259,8 +2190,10 @@ body {{
                 </div>
 
                 <h1 class="title">
+
                     Años<br>
                     Juntos
+
                 </h1>
 
                 <p class="subtitle">
@@ -2277,18 +2210,14 @@ body {{
 
                 </p>
 
-                <div class="tap-hint">
-                    toca para comenzar
-                </div>
-
             </div>
 
         </section>
 
 
-        <!-- ==================================================
-             02 ESTADÍSTICAS
-             ================================================== -->
+        <!-- =================================================
+             02
+             ================================================= -->
 
         <section
             class="slide"
@@ -2302,11 +2231,15 @@ body {{
                 </div>
 
                 <h2 class="section-title">
+
                     Nuestra historia<br>
                     en números
+
                 </h2>
 
+
                 <div class="stats">
+
 
                     <div class="stat">
 
@@ -2341,7 +2274,7 @@ body {{
                         </div>
 
                         <div class="stat-label">
-                            LUGARES FAVORITOS
+                            LUGARES
                         </div>
 
                     </div>
@@ -2359,18 +2292,20 @@ body {{
 
                     </div>
 
+
                 </div>
+
 
                 <p class="section-text">
 
-                    Pero hay una estadística que nunca
-                    podremos calcular:
+                    Pero hay una estadística
+                    que nunca podremos calcular:
 
-                    <br>
+                    <br><br>
 
                     <strong>
-                    todas las veces que elegimos
-                    estar juntos.
+                        todas las veces que
+                        elegimos estar juntos.
                     </strong>
 
                 </p>
@@ -2380,9 +2315,9 @@ body {{
         </section>
 
 
-        <!-- ==================================================
-             03 INICIO
-             ================================================== -->
+        <!-- =================================================
+             03
+             ================================================= -->
 
         <section
             class="slide"
@@ -2396,8 +2331,10 @@ body {{
                 </div>
 
                 <h2 class="section-title">
+
                     Todo comenzó<br>
                     aquí
+
                 </h2>
 
                 <div class="big-date">
@@ -2406,14 +2343,14 @@ body {{
 
                 <p class="section-text">
 
-                    Hay fechas que terminan convirtiéndose
-                    en algo mucho más grande de lo que
-                    imaginábamos.
+                    Hay fechas que terminan
+                    convirtiéndose en algo mucho
+                    más grande de lo que imaginábamos.
 
                     <br><br>
 
-                    El 24 de julio de 2023 comenzó
-                    nuestra historia.
+                    El 24 de julio de 2023
+                    comenzó nuestra historia.
 
                 </p>
 
@@ -2427,9 +2364,9 @@ body {{
         </section>
 
 
-        <!-- ==================================================
-             04 CAIFANES
-             ================================================== -->
+        <!-- =================================================
+             04
+             ================================================= -->
 
         <section
             class="slide"
@@ -2443,8 +2380,10 @@ body {{
                 </div>
 
                 <h2 class="section-title">
+
                     Una noche<br>
                     para recordar
+
                 </h2>
 
                 <div
@@ -2454,13 +2393,13 @@ body {{
 
                 <p class="section-text">
 
-                    Porque no solamente importa
+                    No solamente importa
                     a dónde vamos,
 
                     <br>
 
-                    sino con quién compartimos
-                    el momento.
+                    sino con quién
+                    compartimos el momento.
 
                 </p>
 
@@ -2469,9 +2408,9 @@ body {{
         </section>
 
 
-        <!-- ==================================================
-             05 DICIEMBRE
-             ================================================== -->
+        <!-- =================================================
+             05
+             ================================================= -->
 
         <section
             class="slide"
@@ -2485,11 +2424,15 @@ body {{
                 </div>
 
                 <h2 class="section-title">
+
                     Nuestro primer<br>
                     diciembre
+
                 </h2>
 
+
                 <div class="memories">
+
 
                     <div class="memory">
 
@@ -2505,8 +2448,8 @@ body {{
 
                             <div class="memory-text">
                                 Un lugar diferente,
-                                pero mucho más especial
-                                porque estabas conmigo.
+                                pero especial porque
+                                estabas conmigo.
                             </div>
 
                         </div>
@@ -2527,7 +2470,7 @@ body {{
                             </div>
 
                             <div class="memory-text">
-                                Compartiendo momentos sencillos
+                                Momentos sencillos
                                 que terminaron convirtiéndose
                                 en recuerdos.
                             </div>
@@ -2550,15 +2493,17 @@ body {{
                             </div>
 
                             <div class="memory-text">
-                                Una aventura más de tantas
-                                que hemos ido sumando.
+                                Una aventura más
+                                de nuestra historia.
                             </div>
 
                         </div>
 
                     </div>
 
+
                 </div>
+
 
                 <div
                     class="photo-frame"
@@ -2570,9 +2515,9 @@ body {{
         </section>
 
 
-        <!-- ==================================================
-             06 2024
-             ================================================== -->
+        <!-- =================================================
+             06
+             ================================================= -->
 
         <section
             class="slide"
@@ -2586,11 +2531,15 @@ body {{
                 </div>
 
                 <h2 class="section-title">
+
                     Un año de<br>
                     cambios
+
                 </h2>
 
+
                 <div class="memories">
+
 
                     <div class="memory">
 
@@ -2675,7 +2624,9 @@ body {{
 
                     </div>
 
+
                 </div>
+
 
                 <div
                     class="photo-frame"
@@ -2687,9 +2638,9 @@ body {{
         </section>
 
 
-        <!-- ==================================================
-             07 2025-2026
-             ================================================== -->
+        <!-- =================================================
+             07
+             ================================================= -->
 
         <section
             class="slide"
@@ -2703,11 +2654,15 @@ body {{
                 </div>
 
                 <h2 class="section-title">
+
                     Seguimos<br>
                     escribiendo
+
                 </h2>
 
+
                 <div class="memories">
+
 
                     <div class="memory">
 
@@ -2772,7 +2727,9 @@ body {{
 
                     </div>
 
+
                 </div>
+
 
                 <div
                     class="photo-frame"
@@ -2784,9 +2741,9 @@ body {{
         </section>
 
 
-        <!-- ==================================================
-             08 GASTRONOMÍA
-             ================================================== -->
+        <!-- =================================================
+             08
+             ================================================= -->
 
         <section
             class="slide"
@@ -2800,16 +2757,22 @@ body {{
                 </div>
 
                 <h2 class="section-title">
+
                     Nuestros<br>
                     lugares
+
                 </h2>
 
                 <p class="section-text">
+
                     Porque una relación también
                     se construye alrededor de una mesa.
+
                 </p>
 
+
                 <div class="places">
+
 
                     <div class="place">
 
@@ -2863,6 +2826,7 @@ body {{
 
                     </div>
 
+
                 </div>
 
             </div>
@@ -2870,9 +2834,9 @@ body {{
         </section>
 
 
-        <!-- ==================================================
-             09 PLAYLIST
-             ================================================== -->
+        <!-- =================================================
+             09
+             ================================================= -->
 
         <section
             class="slide"
@@ -2886,21 +2850,27 @@ body {{
                 </div>
 
                 <h2 class="section-title">
+
                     Nuestra<br>
                     banda sonora
+
                 </h2>
 
                 <p class="section-text">
+
                     11 canciones que terminaron
                     formando parte de nuestra historia.
+
                 </p>
 
+
                 <div class="album"></div>
+
 
                 <div class="featured-song">
 
                     <div class="song-number">
-                        TU CANCIÓN #01
+                        CANCIÓN #01
                     </div>
 
                     <div class="song-title">
@@ -2912,9 +2882,13 @@ body {{
                     </div>
 
                     <div class="song-meaning">
-                        A pesar de las cuentas, el estrés diario
-                        y todas las cosas que tenemos que hacer,
-                        siempre quiero encontrar tiempo para ti.
+
+                        A pesar de las cuentas,
+                        el estrés diario y todas
+                        las cosas que tenemos que hacer,
+                        siempre quiero encontrar
+                        tiempo para ti.
+
                     </div>
 
                 </div>
@@ -2924,9 +2898,9 @@ body {{
         </section>
 
 
-        <!-- ==================================================
-             10 GALERÍA
-             ================================================== -->
+        <!-- =================================================
+             10
+             ================================================= -->
 
         <section
             class="slide"
@@ -2940,23 +2914,22 @@ body {{
                 </div>
 
                 <h2 class="section-title">
+
                     Nuestros<br>
                     recuerdos
+
                 </h2>
+
 
                 <div
                     class="gallery-photo"
                     id="galleryPhoto"
                 ></div>
 
+
                 <div
                     id="galleryCaption"
-                    class="photo-caption"
-                    style="
-                        position:static;
-                        background:none;
-                        text-align:center;
-                    "
+                    class="section-text"
                 ></div>
 
             </div>
@@ -2964,9 +2937,9 @@ body {{
         </section>
 
 
-        <!-- ==================================================
-             11 FINAL
-             ================================================== -->
+        <!-- =================================================
+             11
+             ================================================= -->
 
         <section
             class="slide"
@@ -2979,6 +2952,7 @@ body {{
                     Y ESTO APENAS ES UNA PARTE
                 </div>
 
+
                 <div class="final-title">
 
                     Gracias por<br>
@@ -2986,11 +2960,13 @@ body {{
 
                 </div>
 
+
                 <div class="days-label">
 
                     Faltan aproximadamente
 
                 </div>
+
 
                 <div
                     class="days-number"
@@ -2999,9 +2975,13 @@ body {{
                     --
                 </div>
 
+
                 <div class="days-label">
+
                     días para nuestro próximo aniversario 💫
+
                 </div>
+
 
                 <div class="quote">
 
@@ -3026,6 +3006,7 @@ body {{
 
     <button
         id="musicControl"
+        type="button"
         aria-label="Música"
     >
 
@@ -3046,7 +3027,7 @@ body {{
 </div>
 
 
-{audio_html}
+{AUDIO_HTML}
 
 
 <script>
@@ -3060,31 +3041,50 @@ const DATA =
 
 
 /* ============================================================
-   ELEMENTOS
+   REFERENCIAS
    ============================================================ */
+
+const app =
+    document.getElementById(
+        "app"
+    );
 
 const slides =
     Array.from(
-        document.querySelectorAll(".slide")
+        document.querySelectorAll(
+            ".slide"
+        )
     );
 
 const progress =
-    document.getElementById("progress");
+    document.getElementById(
+        "progress"
+    );
 
 const counter =
-    document.getElementById("counter");
+    document.getElementById(
+        "counter"
+    );
 
 const background =
-    document.getElementById("background");
+    document.getElementById(
+        "background"
+    );
 
 const music =
-    document.getElementById("backgroundMusic");
+    document.getElementById(
+        "backgroundMusic"
+    );
 
 const musicControl =
-    document.getElementById("musicControl");
+    document.getElementById(
+        "musicControl"
+    );
 
 const soundBars =
-    document.getElementById("soundBars");
+    document.getElementById(
+        "soundBars"
+    );
 
 
 /* ============================================================
@@ -3095,18 +3095,25 @@ let current = 0;
 
 let galleryIndex = 0;
 
-let photoIndexes = {{
-    december: 0,
-    year2024: 0,
-    year2025: 0
-}};
+let photoIndexes = {
+
+    december:
+        0,
+
+    year2024:
+        0,
+
+    year2025:
+        0
+
+};
 
 
 /* ============================================================
    TEMAS
    ============================================================ */
 
-const themes = {{
+const themes = {
 
     cover:
         "radial-gradient(circle at 20% 15%, #ff2d75 0%, transparent 32%), radial-gradient(circle at 85% 80%, #7738ff 0%, transparent 38%), linear-gradient(145deg,#17040d,#08030c)",
@@ -3141,82 +3148,109 @@ const themes = {{
     final:
         "radial-gradient(circle at 20% 20%, #ff2d75 0%, transparent 35%), radial-gradient(circle at 80% 80%, #8c52ff 0%, transparent 40%), linear-gradient(145deg,#17030e,#08030d)"
 
-}};
+};
 
 
 /* ============================================================
    PROGRESO
    ============================================================ */
 
-function buildProgress() {{
+function createProgress() {
 
     progress.innerHTML = "";
 
     slides.forEach(
-        (_, index) => {{
+        function () {
 
             const bar =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
             bar.className =
                 "progress-bar";
 
+
             const fill =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
 
             fill.className =
                 "progress-fill";
 
-            bar.appendChild(fill);
 
-            progress.appendChild(bar);
+            bar.appendChild(
+                fill
+            );
 
-        }}
+            progress.appendChild(
+                bar
+            );
+
+        }
     );
 
-}}
+}
 
 
-buildProgress();
+createProgress();
 
 
 /* ============================================================
-   FOTOS
+   FOTO
    ============================================================ */
 
 function renderPhoto(
     elementId,
     image,
-    caption = ""
-) {{
+    caption
+) {
 
     const element =
         document.getElementById(
             elementId
         );
 
-    if (!element || !image)
+    if (
+        !element ||
+        !image
+    ) {
         return;
+    }
+
 
     element.innerHTML = `
 
-        <img src="${{image}}">
+        <img
+            src="${image}"
+            draggable="false"
+        >
 
-        ${{caption
-            ? `<div class="photo-caption">${{caption}}</div>`
-            : ""
-        }}
+        ${
+            caption
+            ?
+            `
+            <div class="photo-caption">
+                ${caption}
+            </div>
+            `
+            :
+            ""
+        }
 
     `;
 
-}}
+}
 
 
 /* ============================================================
-   FOTO INICIAL
+   FOTOS PRINCIPALES
    ============================================================ */
 
-if (DATA.imagenes.inicio) {{
+if (
+    DATA.imagenes.inicio
+) {
 
     renderPhoto(
         "inicioPhoto",
@@ -3224,14 +3258,12 @@ if (DATA.imagenes.inicio) {{
         "El comienzo de nosotros ❤️"
     );
 
-}}
+}
 
 
-/* ============================================================
-   CAIFANES
-   ============================================================ */
-
-if (DATA.imagenes.caifanes) {{
+if (
+    DATA.imagenes.caifanes
+) {
 
     renderPhoto(
         "caifanesPhoto",
@@ -3239,92 +3271,108 @@ if (DATA.imagenes.caifanes) {{
         "Una noche para recordar 🎸❤️"
     );
 
-}}
+}
 
 
 /* ============================================================
-   CARRUSEL DE DICIEMBRE
+   DICIEMBRE
    ============================================================ */
 
-function renderDecember() {{
+function renderDecember() {
 
     const images =
-        DATA.imagenes.diciembre_2023 || [];
+        DATA.imagenes.diciembre_2023 ||
+        [];
 
-    if (!images.length)
+    if (!images.length) {
         return;
+    }
+
 
     const index =
         photoIndexes.december %
         images.length;
 
+
     renderPhoto(
         "decemberPhoto",
         images[index],
-        DATA.captions.diciembre_2023[index] || ""
+        DATA.captions
+            .diciembre_2023[index]
     );
 
-}}
+}
 
 
 /* ============================================================
-   CARRUSEL 2024
+   2024
    ============================================================ */
 
-function render2024() {{
+function render2024() {
 
     const images =
-        DATA.imagenes.y2024 || [];
+        DATA.imagenes.y2024 ||
+        [];
 
-    if (!images.length)
+    if (!images.length) {
         return;
+    }
+
 
     const index =
         photoIndexes.year2024 %
         images.length;
 
+
     renderPhoto(
         "year2024Photo",
         images[index],
-        DATA.captions.y2024[index] || ""
+        DATA.captions
+            .y2024[index]
     );
 
-}}
+}
 
 
 /* ============================================================
-   CARRUSEL 2025
+   2025 / 2026
    ============================================================ */
 
-function render2025() {{
+function render2025() {
 
     const images =
-        DATA.imagenes.y2025_2026 || [];
+        DATA.imagenes.y2025_2026 ||
+        [];
 
-    if (!images.length)
+    if (!images.length) {
         return;
+    }
+
 
     const index =
         photoIndexes.year2025 %
         images.length;
 
+
     renderPhoto(
         "year2025Photo",
         images[index],
-        DATA.captions.y2025_2026[index] || ""
+        DATA.captions
+            .y2025_2026[index]
     );
 
-}}
+}
 
 
 /* ============================================================
    GALERÍA
    ============================================================ */
 
-function renderGallery() {{
+function renderGallery() {
 
     const images =
-        DATA.imagenes.galeria || [];
+        DATA.imagenes.galeria ||
+        [];
 
     const photo =
         document.getElementById(
@@ -3336,48 +3384,64 @@ function renderGallery() {{
             "galleryCaption"
         );
 
-    if (!images.length) {{
 
-        photo.innerHTML = `
-            <div style="
-                height:100%;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                color:rgba(255,255,255,.4);
-            ">
-                No hay fotos todavía
-            </div>
-        `;
+    if (
+        !photo ||
+        !caption
+    ) {
+        return;
+    }
+
+
+    if (!images.length) {
+
+        photo.innerHTML = "";
+
+        caption.textContent =
+            "Agrega fotografías a fotos/galeria";
 
         return;
 
-    }}
+    }
+
 
     const index =
         galleryIndex %
         images.length;
 
-    photo.innerHTML =
-        `<img src="${{images[index]}}">`;
+
+    photo.innerHTML = `
+
+        <img
+            src="${images[index]}"
+            draggable="false"
+        >
+
+    `;
+
 
     caption.textContent =
-        `Recuerdo ${{index + 1}} de ${{images.length}}`;
+        "Recuerdo " +
+        (index + 1) +
+        " de " +
+        images.length;
 
-}}
+}
 
 
 /* ============================================================
-   DÍAS PARA ANIVERSARIO
+   DÍAS
    ============================================================ */
 
-function updateDays() {{
+function updateDays() {
 
     const now =
         new Date();
 
+
     let year =
         now.getFullYear();
+
 
     let anniversary =
         new Date(
@@ -3386,7 +3450,10 @@ function updateDays() {{
             23
         );
 
-    if (anniversary < now) {{
+
+    if (
+        anniversary <= now
+    ) {
 
         anniversary =
             new Date(
@@ -3395,221 +3462,295 @@ function updateDays() {{
                 23
             );
 
-    }}
+    }
 
-    const diff =
+
+    const difference =
         anniversary - now;
+
 
     const days =
         Math.ceil(
-            diff /
-            (1000 * 60 * 60 * 24)
+            difference /
+            (
+                1000 *
+                60 *
+                60 *
+                24
+            )
         );
 
-    document.getElementById(
-        "daysNumber"
-    ).textContent = days;
 
-}}
+    const element =
+        document.getElementById(
+            "daysNumber"
+        );
+
+
+    if (element) {
+
+        element.textContent =
+            days;
+
+    }
+
+}
+
 
 updateDays();
 
 
 /* ============================================================
-   CAMBIO DE SLIDE
+   MOSTRAR SLIDE
    ============================================================ */
 
 function showSlide(
     index,
-    direction = 1
-) {{
+    direction
+) {
 
-    if (index < 0)
-        index = 0;
-
-    if (index >= slides.length)
-        index = slides.length - 1;
-
-    if (index === current)
+    if (
+        index < 0 ||
+        index >= slides.length
+    ) {
         return;
+    }
 
-    const old =
+
+    if (
+        index === current
+    ) {
+        return;
+    }
+
+
+    const oldSlide =
         slides[current];
 
-    const next =
+    const newSlide =
         slides[index];
 
-    old.classList.remove(
+
+    oldSlide.classList.remove(
         "active"
     );
 
-    old.classList.add(
-        direction > 0
-            ? "previous"
-            : ""
-    );
 
-    next.classList.remove(
+    oldSlide.classList.remove(
         "previous"
     );
 
-    next.classList.add(
+
+    if (
+        direction < 0
+    ) {
+
+        oldSlide.classList.add(
+            "previous"
+        );
+
+    }
+
+
+    newSlide.classList.remove(
+        "previous"
+    );
+
+
+    newSlide.classList.add(
         "active"
     );
 
-    current = index;
 
+    current =
+        index;
 
-    /* Fondo */
 
     const theme =
-        next.dataset.theme ||
-        "cover";
-
-    background.style.background =
-        themes[theme];
+        newSlide.dataset.theme;
 
 
-    /* Contador */
+    if (
+        background &&
+        themes[theme]
+    ) {
+
+        background.style.background =
+            themes[theme];
+
+    }
+
 
     counter.textContent =
-        String(current + 1).padStart(2,"0")
+        String(
+            current + 1
+        ).padStart(
+            2,
+            "0"
+        )
         +
         " / "
         +
-        String(slides.length).padStart(2,"0");
+        String(
+            slides.length
+        ).padStart(
+            2,
+            "0"
+        );
 
-
-    /* Barras */
 
     const bars =
         document.querySelectorAll(
             ".progress-fill"
         );
 
+
     bars.forEach(
-        (bar, i) => {{
+        function (bar, i) {
 
-            if (i < current) {{
-
-                bar.style.width =
-                    "100%";
-
-            }}
-
-            else if (i === current) {{
+            if (
+                i <= current
+            ) {
 
                 bar.style.width =
                     "100%";
 
-            }}
-
-            else {{
+            }
+            else {
 
                 bar.style.width =
                     "0%";
 
-            }}
+            }
 
-        }}
+        }
     );
 
 
-    /* Carruseles */
+    if (
+        current === 4
+    ) {
 
-    if (current === 4) {{
         renderDecember();
-    }}
 
-    if (current === 5) {{
+    }
+
+
+    if (
+        current === 5
+    ) {
+
         render2024();
-    }}
 
-    if (current === 6) {{
+    }
+
+
+    if (
+        current === 6
+    ) {
+
         render2025();
-    }}
 
-    if (current === 9) {{
+    }
+
+
+    if (
+        current === 9
+    ) {
+
         renderGallery();
-    }}
 
-}}
+    }
+
+}
 
 
 /* ============================================================
-   ESTADO INICIAL
+   INICIO
    ============================================================ */
 
 background.style.background =
     themes.cover;
 
-const initialBars =
-    document.querySelectorAll(
+
+const firstBar =
+    document.querySelector(
         ".progress-fill"
     );
 
-if (initialBars.length) {{
 
-    initialBars[0].style.width =
+if (firstBar) {
+
+    firstBar.style.width =
         "100%";
 
-}}
+}
+
+
+renderDecember();
+render2024();
+render2025();
+renderGallery();
 
 
 /* ============================================================
-   SIGUIENTE
+   NAVEGACIÓN
    ============================================================ */
 
-function nextSlide() {{
+function nextSlide() {
 
     if (
         current <
         slides.length - 1
-    ) {{
+    ) {
 
         showSlide(
             current + 1,
             1
         );
 
-    }}
+    }
 
-}}
+}
 
 
-/* ============================================================
-   ANTERIOR
-   ============================================================ */
+function previousSlide() {
 
-function previousSlide() {{
-
-    if (current > 0) {{
+    if (
+        current > 0
+    ) {
 
         showSlide(
             current - 1,
             -1
         );
 
-    }}
+    }
 
-}}
+}
 
 
 /* ============================================================
-   TAP
+   SWIPE
    ============================================================ */
 
 let touchStartX = 0;
+
 let touchStartY = 0;
-let touchStartTime = 0;
+
+let touching = false;
 
 
-document.addEventListener(
+app.addEventListener(
     "touchstart",
-    event => {{
+    function (event) {
 
-        if (!event.touches.length)
+        if (
+            !event.touches.length
+        ) {
             return;
+        }
+
 
         touchStartX =
             event.touches[0].clientX;
@@ -3617,111 +3758,175 @@ document.addEventListener(
         touchStartY =
             event.touches[0].clientY;
 
-        touchStartTime =
-            Date.now();
+        touching =
+            true;
 
-    }},
-    {{ passive: true }}
+
+        event.preventDefault();
+
+    },
+    {
+        passive: false
+    }
 );
 
 
-document.addEventListener(
-    "touchend",
-    event => {{
+app.addEventListener(
+    "touchmove",
+    function (event) {
 
-        if (!event.changedTouches.length)
+        if (!touching) {
             return;
+        }
+
+
+        /*
+         * MUY IMPORTANTE:
+         *
+         * evita que Android/Chrome
+         * interprete el gesto como
+         * navegación de la página.
+         */
+
+        event.preventDefault();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+app.addEventListener(
+    "touchend",
+    function (event) {
+
+        if (!touching) {
+            return;
+        }
+
+
+        touching =
+            false;
+
+
+        const touch =
+            event.changedTouches[0];
+
 
         const endX =
-            event.changedTouches[0].clientX;
+            touch.clientX;
 
         const endY =
-            event.changedTouches[0].clientY;
+            touch.clientY;
 
-        const dx =
-            endX - touchStartX;
 
-        const dy =
-            endY - touchStartY;
+        const deltaX =
+            endX -
+            touchStartX;
 
-        const duration =
-            Date.now() -
-            touchStartTime;
+
+        const deltaY =
+            endY -
+            touchStartY;
+
+
+        event.preventDefault();
 
 
         /*
-         * Swipe horizontal
+         * Ignorar movimientos verticales.
          */
 
         if (
-            Math.abs(dx) > 55 &&
-            Math.abs(dx) > Math.abs(dy)
-        ) {{
-
-            if (dx < 0)
-                nextSlide();
-            else
-                previousSlide();
-
+            Math.abs(deltaX) <
+            45
+        ) {
             return;
+        }
 
-        }}
+
+        if (
+            Math.abs(deltaX) <=
+            Math.abs(deltaY)
+        ) {
+            return;
+        }
 
 
         /*
-         * Tap
+         * IZQUIERDA
+         * = SIGUIENTE
          */
 
         if (
-            Math.abs(dx) < 25 &&
-            Math.abs(dy) < 25 &&
-            duration < 450
-        ) {{
+            deltaX < 0
+        ) {
 
-            const width =
-                window.innerWidth;
+            nextSlide();
 
-            if (endX < width / 2)
-                previousSlide();
-            else
-                nextSlide();
+        }
 
-        }}
 
-    }},
-    {{ passive: true }}
+        /*
+         * DERECHA
+         * = ANTERIOR
+         */
+
+        else {
+
+            previousSlide();
+
+        }
+
+    },
+    {
+        passive: false
+    }
 );
 
 
 /* ============================================================
-   CLICK DESKTOP
+   TAP
    ============================================================ */
 
-document.addEventListener(
+app.addEventListener(
     "click",
-    event => {{
+    function (event) {
 
         if (
             event.target.closest(
                 "#musicControl"
             )
-        )
+        ) {
+
             return;
+
+        }
+
 
         if (
-            window.innerWidth <= 799
-        )
-            return;
+            window.innerWidth >=
+            800
+        ) {
 
-        const width =
-            window.innerWidth;
+            if (
+                event.clientX <
+                window.innerWidth / 2
+            ) {
 
-        if (event.clientX < width / 2)
-            previousSlide();
-        else
-            nextSlide();
+                previousSlide();
 
-    }}
+            }
+            else {
+
+                nextSlide();
+
+            }
+
+        }
+
+    }
 );
 
 
@@ -3731,30 +3936,40 @@ document.addEventListener(
 
 document.addEventListener(
     "keydown",
-    event => {{
+    function (event) {
 
         if (
-            event.key === "ArrowRight" ||
-            event.key === " "
-        ) {{
+            event.key ===
+            "ArrowRight"
+        ) {
+
+            nextSlide();
+
+        }
+
+
+        if (
+            event.key ===
+            "ArrowLeft"
+        ) {
+
+            previousSlide();
+
+        }
+
+
+        if (
+            event.key ===
+            " "
+        ) {
 
             event.preventDefault();
 
             nextSlide();
 
-        }}
+        }
 
-        else if (
-            event.key === "ArrowLeft"
-        ) {{
-
-            event.preventDefault();
-
-            previousSlide();
-
-        }}
-
-    }}
+    }
 );
 
 
@@ -3763,88 +3978,120 @@ document.addEventListener(
    ============================================================ */
 
 setInterval(
-    () => {{
+    function () {
 
-        if (current === 4) {{
+
+        if (
+            current === 4
+        ) {
 
             const images =
-                DATA.imagenes.diciembre_2023 || [];
+                DATA.imagenes
+                    .diciembre_2023 ||
+                [];
 
-            if (images.length > 1) {{
+            if (
+                images.length > 1
+            ) {
 
                 photoIndexes.december =
                     (
-                        photoIndexes.december + 1
+                        photoIndexes.december +
+                        1
                     ) %
                     images.length;
+
 
                 renderDecember();
 
-            }}
+            }
 
-        }}
+        }
 
 
-        if (current === 5) {{
+        if (
+            current === 5
+        ) {
 
             const images =
-                DATA.imagenes.y2024 || [];
+                DATA.imagenes.y2024 ||
+                [];
 
-            if (images.length > 1) {{
+            if (
+                images.length > 1
+            ) {
 
                 photoIndexes.year2024 =
                     (
-                        photoIndexes.year2024 + 1
+                        photoIndexes.year2024 +
+                        1
                     ) %
                     images.length;
+
 
                 render2024();
 
-            }}
+            }
 
-        }}
+        }
 
 
-        if (current === 6) {{
+        if (
+            current === 6
+        ) {
 
             const images =
-                DATA.imagenes.y2025_2026 || [];
+                DATA.imagenes
+                    .y2025_2026 ||
+                [];
 
-            if (images.length > 1) {{
+            if (
+                images.length > 1
+            ) {
 
                 photoIndexes.year2025 =
                     (
-                        photoIndexes.year2025 + 1
+                        photoIndexes.year2025 +
+                        1
                     ) %
                     images.length;
+
 
                 render2025();
 
-            }}
+            }
 
-        }}
+        }
 
 
-        if (current === 9) {{
+        if (
+            current === 9
+        ) {
 
             const images =
-                DATA.imagenes.galeria || [];
+                DATA.imagenes.galeria ||
+                [];
 
-            if (images.length > 1) {{
+            if (
+                images.length > 1
+            ) {
 
                 galleryIndex =
                     (
-                        galleryIndex + 1
+                        galleryIndex +
+                        1
                     ) %
                     images.length;
 
+
                 renderGallery();
 
-            }}
+            }
 
-        }}
+        }
 
-    }},
+
+    },
     5000
 );
 
@@ -3853,225 +4100,1188 @@ setInterval(
    MÚSICA
    ============================================================ */
 
-let musicStarted = false;
+let musicStarted =
+    false;
 
 
-function startMusic() {{
-
-    if (!music)
-        return;
-
-    if (musicStarted)
-        return;
-
-    const promise =
-        music.play();
+function startMusic() {
 
     if (
-        promise &&
-        promise.then
-    ) {{
+        !music ||
+        musicStarted
+    ) {
 
-        promise.then(
-            () => {{
+        return;
+
+    }
+
+
+    music.play()
+        .then(
+            function () {
 
                 musicStarted =
                     true;
 
-                soundBars.classList.add(
-                    "music-playing"
-                );
 
-            }}
-        ).catch(
-            () => {{}}
+                if (soundBars) {
+
+                    soundBars.classList.add(
+                        "music-playing"
+                    );
+
+                }
+
+            }
+        )
+        .catch(
+            function () {
+
+                /*
+                 * Chrome/Android puede bloquear
+                 * autoplay hasta una interacción.
+                 */
+
+            }
         );
 
-    }}
-
-}}
+}
 
 
-/*
- * El navegador móvil necesita interacción.
- */
-
-document.addEventListener(
+app.addEventListener(
     "touchstart",
     startMusic,
-    {{
+    {
         once: true,
         passive: true
-    }}
+    }
 );
 
 
-document.addEventListener(
+app.addEventListener(
     "click",
     startMusic,
-    {{
+    {
         once: true
-    }}
-);
-
-
-document.addEventListener(
-    "keydown",
-    startMusic,
-    {{
-        once: true
-    }}
+    }
 );
 
 
 /* ============================================================
-   BOTÓN DE MÚSICA
+   CONTROL DE MÚSICA
    ============================================================ */
 
-if (musicControl) {{
+if (musicControl) {
 
     musicControl.addEventListener(
         "click",
-        event => {{
+        function (event) {
 
             event.stopPropagation();
 
-            if (!music)
-                return;
 
-            if (music.paused) {{
+            if (!music) {
+                return;
+            }
+
+
+            if (
+                music.paused
+            ) {
 
                 music.play()
                     .then(
-                        () => {{
+                        function () {
 
-                            soundBars.classList.add(
-                                "music-playing"
-                            );
+                            if (
+                                soundBars
+                            ) {
 
-                        }}
+                                soundBars.classList.add(
+                                    "music-playing"
+                                );
+
+                            }
+
+                        }
                     )
                     .catch(
-                        () => {{}}
+                        function () {}
                     );
 
-            }}
+            }
 
-            else {{
+            else {
 
                 music.pause();
 
-                soundBars.classList.remove(
-                    "music-playing"
-                );
-
-            }}
-
-        }}
-    );
-
-}}
-
-
-/* ============================================================
-   CARRUSELES POR TOQUE
-   ============================================================ */
-
-document.addEventListener(
-    "click",
-    event => {{
-
-        const active =
-            slides[current];
-
-        if (!active)
-            return;
-
-
-        if (current === 4) {{
-
-            const rect =
-                active.getBoundingClientRect();
-
-            if (
-                event.clientY >
-                rect.top + 120
-            ) {{
 
                 if (
-                    event.clientX >
-                    window.innerWidth * .5
-                ) {{
+                    soundBars
+                ) {
 
-                    const images =
-                        DATA.imagenes.diciembre_2023 || [];
+                    soundBars.classList.remove(
+                        "music-playing"
+                    );
 
-                    if (images.length) {{
+                }
 
-                        photoIndexes.december =
-                            (
-                                photoIndexes.december + 1
-                            ) %
-                            images.length;
+            }
 
-                        renderDecember();
+        }
+    );
 
-                    }}
-
-                }}
-
-                else {{
-
-                    const images =
-                        DATA.imagenes.diciembre_2023 || [];
-
-                    if (images.length) {{
-
-                        photoIndexes.december =
-                            (
-                                photoIndexes.december - 1 +
-                                images.length
-                            ) %
-                            images.length;
-
-                        renderDecember();
-
-                    }}
-
-                }}
-
-            }}
-
-        }}
-
-    }}
-);
-
-
-/* ============================================================
-   PREPARAR PRIMERAS IMÁGENES
-   ============================================================ */
-
-renderDecember();
-render2024();
-render2025();
-renderGallery();
-
+}
 
 </script>
+
+
+<!-- ========================================================
+     FULLSCREEN REAL PARA STREAMLIT
+     ======================================================== -->
+
+<script>
+
+(function () {
+
+
+    /*
+     * Esta parte es la importante para que el Wrapped
+     * deje de parecer una página dentro de otra página.
+     */
+
+    setTimeout(
+        function () {
+
+            try {
+
+
+                /* =============================================
+                   DOCUMENTO PADRE
+                   ============================================= */
+
+                const parentDoc =
+                    window.parent.document;
+
+
+                const parentBody =
+                    parentDoc.body;
+
+
+                const originalApp =
+                    document.getElementById(
+                        "app"
+                    );
+
+
+                if (!originalApp) {
+                    return;
+                }
+
+
+                /* =============================================
+                   EVITAR DUPLICADOS
+                   ============================================= */
+
+                const previous =
+                    parentDoc.getElementById(
+                        "wrappedFullscreen"
+                    );
+
+
+                if (previous) {
+
+                    previous.remove();
+
+                }
+
+
+                const previousStyle =
+                    parentDoc.getElementById(
+                        "wrappedFullscreenStyle"
+                    );
+
+
+                if (previousStyle) {
+
+                    previousStyle.remove();
+
+                }
+
+
+                /* =============================================
+                   COPIAR ESTILOS
+                   ============================================= */
+
+                const styles =
+                    document.querySelectorAll(
+                        "style"
+                    );
+
+
+                let css =
+                    "";
+
+
+                styles.forEach(
+                    function (style) {
+
+                        css +=
+                            style.textContent +
+                            "\n";
+
+                    }
+                );
+
+
+                const style =
+                    parentDoc.createElement(
+                        "style"
+                    );
+
+
+                style.id =
+                    "wrappedFullscreenStyle";
+
+
+                style.textContent = `
+
+                    ${css}
+
+                    html,
+                    body {
+
+                        margin:
+                            0 !important;
+
+                        padding:
+                            0 !important;
+
+                        width:
+                            100% !important;
+
+                        height:
+                            100% !important;
+
+                        overflow:
+                            hidden !important;
+
+                        background:
+                            #07030b !important;
+
+                    }
+
+
+                    header,
+                    [data-testid="stHeader"],
+                    [data-testid="stToolbar"],
+                    [data-testid="stDecoration"],
+                    #MainMenu,
+                    footer {
+
+                        display:
+                            none !important;
+
+                    }
+
+
+                    [data-testid="stAppViewContainer"],
+                    [data-testid="stAppViewContainer"] > div,
+                    [data-testid="stAppViewContainer"] .main,
+                    [data-testid="stAppViewContainer"] .block-container {
+
+                        margin:
+                            0 !important;
+
+                        padding:
+                            0 !important;
+
+                        max-width:
+                            none !important;
+
+                        width:
+                            100% !important;
+
+                    }
+
+
+                    #wrappedFullscreen {
+
+                        position:
+                            fixed !important;
+
+                        inset:
+                            0 !important;
+
+                        width:
+                            100vw !important;
+
+                        height:
+                            100dvh !important;
+
+                        z-index:
+                            2147483647 !important;
+
+                        overflow:
+                            hidden !important;
+
+                        background:
+                            #07030b !important;
+
+                    }
+
+
+                    #wrappedFullscreen #app {
+
+                        position:
+                            fixed !important;
+
+                        inset:
+                            0 !important;
+
+                        width:
+                            100vw !important;
+
+                        height:
+                            100dvh !important;
+
+                    }
+
+                `;
+
+
+                parentDoc.head.appendChild(
+                    style
+                );
+
+
+                /* =============================================
+                   CREAR CONTENEDOR FULLSCREEN
+                   ============================================= */
+
+                const fullscreen =
+                    parentDoc.createElement(
+                        "div"
+                    );
+
+
+                fullscreen.id =
+                    "wrappedFullscreen";
+
+
+                /* =============================================
+                   CLONAR WRAPPED
+                   ============================================= */
+
+                const clonedApp =
+                    originalApp.cloneNode(
+                        true
+                    );
+
+
+                fullscreen.appendChild(
+                    clonedApp
+                );
+
+
+                /* =============================================
+                   CLONAR AUDIO
+                   ============================================= */
+
+                const originalAudio =
+                    document.getElementById(
+                        "backgroundMusic"
+                    );
+
+
+                if (originalAudio) {
+
+                    const clonedAudio =
+                        originalAudio.cloneNode(
+                            true
+                        );
+
+
+                    clonedAudio.id =
+                        "backgroundMusic";
+
+
+                    fullscreen.appendChild(
+                        clonedAudio
+                    );
+
+                }
+
+
+                parentBody.appendChild(
+                    fullscreen
+                );
+
+
+                /* =============================================
+                   OCULTAR EL IFRAME
+                   ============================================= */
+
+                const frame =
+                    window.frameElement;
+
+
+                if (frame) {
+
+                    const frameParent =
+                        frame.parentElement;
+
+
+                    if (
+                        frameParent
+                    ) {
+
+                        frameParent.style.display =
+                            "none";
+
+                        frameParent.style.width =
+                            "0";
+
+                        frameParent.style.height =
+                            "0";
+
+                        frameParent.style.overflow =
+                            "hidden";
+
+                    }
+
+                }
+
+
+                /* =============================================
+                   BLOQUEAR SCROLL DEL PADRE
+                   ============================================= */
+
+                parentDoc.documentElement.style.overflow =
+                    "hidden";
+
+
+                parentBody.style.overflow =
+                    "hidden";
+
+
+                /* =============================================
+                   RECONECTAR CONTROLES
+                   ============================================= */
+
+                const app =
+                    fullscreen.querySelector(
+                        "#app"
+                    );
+
+
+                const slides =
+                    Array.from(
+                        app.querySelectorAll(
+                            ".slide"
+                        )
+                    );
+
+
+                const progress =
+                    app.querySelector(
+                        "#progress"
+                    );
+
+
+                const counter =
+                    app.querySelector(
+                        "#counter"
+                    );
+
+
+                const background =
+                    app.querySelector(
+                        "#background"
+                    );
+
+
+                const music =
+                    fullscreen.querySelector(
+                        "#backgroundMusic"
+                    );
+
+
+                const musicControl =
+                    app.querySelector(
+                        "#musicControl"
+                    );
+
+
+                const soundBars =
+                    app.querySelector(
+                        "#soundBars"
+                    );
+
+
+                /* =============================================
+                   ESTADO
+                   ============================================= */
+
+                let current = 0;
+
+                let startX = 0;
+
+                let startY = 0;
+
+                let touching = false;
+
+
+                /* =============================================
+                   TEMAS
+                   ============================================= */
+
+                const themes = {
+
+                    cover:
+                        "radial-gradient(circle at 20% 15%, #ff2d75 0%, transparent 32%), radial-gradient(circle at 85% 80%, #7738ff 0%, transparent 38%), linear-gradient(145deg,#17040d,#08030c)",
+
+                    stats:
+                        "radial-gradient(circle at 20% 20%, #ff8a00 0%, transparent 30%), radial-gradient(circle at 90% 70%, #ff2d75 0%, transparent 35%), linear-gradient(145deg,#16080b,#09030b)",
+
+                    start:
+                        "radial-gradient(circle at 75% 15%, #ffbd3d 0%, transparent 30%), radial-gradient(circle at 20% 80%, #ff2d75 0%, transparent 35%), linear-gradient(145deg,#1a0c04,#0b0408)",
+
+                    concert:
+                        "radial-gradient(circle at 20% 25%, #7a38ff 0%, transparent 35%), radial-gradient(circle at 80% 80%, #ff2d75 0%, transparent 35%), linear-gradient(145deg,#0d061b,#08030c)",
+
+                    december:
+                        "radial-gradient(circle at 20% 15%, #00a6a6 0%, transparent 30%), radial-gradient(circle at 90% 80%, #ff2d75 0%, transparent 35%), linear-gradient(145deg,#041313,#09040c)",
+
+                    year2024:
+                        "radial-gradient(circle at 20% 15%, #ff2d75 0%, transparent 30%), radial-gradient(circle at 85% 25%, #ffbd3d 0%, transparent 32%), linear-gradient(145deg,#17040e,#09030b)",
+
+                    year2025:
+                        "radial-gradient(circle at 80% 20%, #9b52ff 0%, transparent 35%), radial-gradient(circle at 15% 85%, #ff2d75 0%, transparent 35%), linear-gradient(145deg,#0e0619,#08030c)",
+
+                    food:
+                        "radial-gradient(circle at 20% 20%, #ff8a00 0%, transparent 30%), radial-gradient(circle at 85% 85%, #ffd447 0%, transparent 30%), linear-gradient(145deg,#170903,#09040a)",
+
+                    music:
+                        "radial-gradient(circle at 20% 20%, #ff2d75 0%, transparent 35%), radial-gradient(circle at 85% 75%, #8c52ff 0%, transparent 38%), linear-gradient(145deg,#17051b,#08030d)",
+
+                    gallery:
+                        "radial-gradient(circle at 80% 20%, #00a6a6 0%, transparent 35%), radial-gradient(circle at 15% 80%, #ff2d75 0%, transparent 35%), linear-gradient(145deg,#031313,#08030c)",
+
+                    final:
+                        "radial-gradient(circle at 20% 20%, #ff2d75 0%, transparent 35%), radial-gradient(circle at 80% 80%, #8c52ff 0%, transparent 40%), linear-gradient(145deg,#17030e,#08030d)"
+
+                };
+
+
+                /* =============================================
+                   SLIDE
+                   ============================================= */
+
+                function showSlide(
+                    index,
+                    direction
+                ) {
+
+                    if (
+                        index < 0 ||
+                        index >= slides.length
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    if (
+                        index === current
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    const oldSlide =
+                        slides[current];
+
+
+                    const newSlide =
+                        slides[index];
+
+
+                    oldSlide.classList.remove(
+                        "active"
+                    );
+
+
+                    oldSlide.classList.remove(
+                        "previous"
+                    );
+
+
+                    if (
+                        direction < 0
+                    ) {
+
+                        oldSlide.classList.add(
+                            "previous"
+                        );
+
+                    }
+
+
+                    newSlide.classList.add(
+                        "active"
+                    );
+
+
+                    current =
+                        index;
+
+
+                    const theme =
+                        newSlide.dataset.theme;
+
+
+                    if (
+                        background &&
+                        themes[theme]
+                    ) {
+
+                        background.style.background =
+                            themes[theme];
+
+                    }
+
+
+                    if (counter) {
+
+                        counter.textContent =
+                            String(
+                                current + 1
+                            ).padStart(
+                                2,
+                                "0"
+                            )
+                            +
+                            " / "
+                            +
+                            String(
+                                slides.length
+                            ).padStart(
+                                2,
+                                "0"
+                            );
+
+                    }
+
+
+                    const bars =
+                        progress.querySelectorAll(
+                            ".progress-fill"
+                        );
+
+
+                    bars.forEach(
+                        function (
+                            bar,
+                            i
+                        ) {
+
+                            bar.style.width =
+                                i <= current
+                                ? "100%"
+                                : "0%";
+
+                        }
+                    );
+
+                }
+
+
+                /* =============================================
+                   SIGUIENTE / ANTERIOR
+                   ============================================= */
+
+                function next() {
+
+                    if (
+                        current <
+                        slides.length - 1
+                    ) {
+
+                        showSlide(
+                            current + 1,
+                            1
+                        );
+
+                    }
+
+                }
+
+
+                function previous() {
+
+                    if (
+                        current > 0
+                    ) {
+
+                        showSlide(
+                            current - 1,
+                            -1
+                        );
+
+                    }
+
+                }
+
+
+                /* =============================================
+                   INICIALIZAR
+                   ============================================= */
+
+                if (background) {
+
+                    background.style.background =
+                        themes.cover;
+
+                }
+
+
+                const first =
+                    progress.querySelector(
+                        ".progress-fill"
+                    );
+
+
+                if (first) {
+
+                    first.style.width =
+                        "100%";
+
+                }
+
+
+                /* =============================================
+                   SWIPE
+                   ============================================= */
+
+                app.addEventListener(
+                    "touchstart",
+                    function (event) {
+
+                        if (
+                            !event.touches.length
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        startX =
+                            event.touches[0].clientX;
+
+
+                        startY =
+                            event.touches[0].clientY;
+
+
+                        touching =
+                            true;
+
+
+                        event.preventDefault();
+
+                    },
+                    {
+                        passive:
+                            false
+                    }
+                );
+
+
+                app.addEventListener(
+                    "touchmove",
+                    function (event) {
+
+                        if (
+                            !touching
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        /*
+                         * Esta línea es la clave:
+                         * Chrome no desplaza la página.
+                         */
+
+                        event.preventDefault();
+
+                    },
+                    {
+                        passive:
+                            false
+                    }
+                );
+
+
+                app.addEventListener(
+                    "touchend",
+                    function (event) {
+
+                        if (
+                            !touching
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        touching =
+                            false;
+
+
+                        const touch =
+                            event.changedTouches[0];
+
+
+                        const deltaX =
+                            touch.clientX -
+                            startX;
+
+
+                        const deltaY =
+                            touch.clientY -
+                            startY;
+
+
+                        event.preventDefault();
+
+
+                        if (
+                            Math.abs(deltaX) <
+                            45
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        if (
+                            Math.abs(deltaX) <=
+                            Math.abs(deltaY)
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        if (
+                            deltaX < 0
+                        ) {
+
+                            next();
+
+                        }
+                        else {
+
+                            previous();
+
+                        }
+
+                    },
+                    {
+                        passive:
+                            false
+                    }
+                );
+
+
+                /* =============================================
+                   TAP
+                   ============================================= */
+
+                app.addEventListener(
+                    "click",
+                    function (event) {
+
+                        if (
+                            event.target.closest(
+                                "#musicControl"
+                            )
+                        ) {
+
+                            return;
+
+                        }
+
+
+                        if (
+                            window.innerWidth <
+                            800
+                        ) {
+
+                            if (
+                                event.clientX <
+                                window.innerWidth *
+                                0.35
+                            ) {
+
+                                previous();
+
+                            }
+                            else {
+
+                                next();
+
+                            }
+
+                        }
+                        else {
+
+                            if (
+                                event.clientX <
+                                window.innerWidth /
+                                2
+                            ) {
+
+                                previous();
+
+                            }
+                            else {
+
+                                next();
+
+                            }
+
+                        }
+
+                    }
+                );
+
+
+                /* =============================================
+                   TECLADO
+                   ============================================= */
+
+                parentDoc.addEventListener(
+                    "keydown",
+                    function (event) {
+
+                        if (
+                            event.key ===
+                            "ArrowRight"
+                        ) {
+
+                            next();
+
+                        }
+
+
+                        if (
+                            event.key ===
+                            "ArrowLeft"
+                        ) {
+
+                            previous();
+
+                        }
+
+
+                        if (
+                            event.key ===
+                            " "
+                        ) {
+
+                            event.preventDefault();
+
+                            next();
+
+                        }
+
+                    }
+                );
+
+
+                /* =============================================
+                   MÚSICA
+                   ============================================= */
+
+                if (
+                    music &&
+                    musicControl
+                ) {
+
+                    musicControl.addEventListener(
+                        "click",
+                        function (event) {
+
+                            event.stopPropagation();
+
+
+                            if (
+                                music.paused
+                            ) {
+
+                                music.play()
+                                    .then(
+                                        function () {
+
+                                            if (
+                                                soundBars
+                                            ) {
+
+                                                soundBars.classList.add(
+                                                    "music-playing"
+                                                );
+
+                                            }
+
+                                        }
+                                    )
+                                    .catch(
+                                        function () {}
+                                    );
+
+                            }
+                            else {
+
+                                music.pause();
+
+
+                                if (
+                                    soundBars
+                                ) {
+
+                                    soundBars.classList.remove(
+                                        "music-playing"
+                                    );
+
+                                }
+
+                            }
+
+                        }
+                    );
+
+                }
+
+
+                /*
+                 * Primera interacción:
+                 * intentar comenzar música.
+                 */
+
+                let started =
+                    false;
+
+
+                function startMusic() {
+
+                    if (
+                        !music ||
+                        started
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    music.play()
+                        .then(
+                            function () {
+
+                                started =
+                                    true;
+
+
+                                if (
+                                    soundBars
+                                ) {
+
+                                    soundBars.classList.add(
+                                        "music-playing"
+                                    );
+
+                                }
+
+                            }
+                        )
+                        .catch(
+                            function () {}
+                        );
+
+                }
+
+
+                app.addEventListener(
+                    "touchstart",
+                    startMusic,
+                    {
+                        once:
+                            true,
+                        passive:
+                            true
+                    }
+                );
+
+
+                app.addEventListener(
+                    "click",
+                    startMusic,
+                    {
+                        once:
+                            true
+                    }
+                );
+
+
+            }
+            catch (error) {
+
+                console.error(
+                    "Wrapped fullscreen:",
+                    error
+                );
+
+            }
+
+        },
+        250
+    );
+
+})();
+
+</script>
+
 
 </body>
 
 </html>
+
 """
 
 
 # ============================================================
-# RENDER
+# RENDER STREAMLIT
 # ============================================================
+#
+# El iframe original solamente sirve como "puente".
+# El Wrapped se copia a la ventana principal y ocupa
+# todo el viewport.
+#
 
 components.html(
     HTML,
-    height=900,
-    scrolling=False,
+    height=1,
+    scrolling=False
 )

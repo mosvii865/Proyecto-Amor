@@ -1,11 +1,8 @@
 import os
 import base64
 import json
-import html
-
 import streamlit as st
 import streamlit.components.v1 as components
-
 
 # ============================================================
 # CONFIGURACIÓN STREAMLIT
@@ -57,21 +54,9 @@ st.markdown("""
 # ============================================================
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-FOTOS_DIR = os.path.join(
-    BASE_DIR,
-    "fotos"
-)
-
-GALERIA_DIR = os.path.join(
-    FOTOS_DIR,
-    "galeria"
-)
-
-MUSICA_FONDO = os.path.join(
-    BASE_DIR,
-    "musica.mp3"
-)
+FOTOS_DIR = os.path.join(BASE_DIR, "fotos")
+GALERIA_DIR = os.path.join(FOTOS_DIR, "galeria")
+MUSICA_FONDO = os.path.join(BASE_DIR, "musica.mp3")
 
 
 # ============================================================
@@ -87,7 +72,6 @@ def archivo_base64(ruta):
     except Exception:
         return None
 
-
 def mime_imagen(ruta):
     extension = os.path.splitext(ruta)[1].lower()
     tipos = {
@@ -97,7 +81,6 @@ def mime_imagen(ruta):
         ".webp": "image/webp",
     }
     return tipos.get(extension, "image/png")
-
 
 def imagen_data(ruta):
     data = archivo_base64(ruta)
@@ -278,21 +261,21 @@ AUDIO_HTML = f"""
 
 
 # ============================================================
-# HTML DE LA APLICACIÓN (PANTALLA COMPLETA DIRECTA)
+# HTML DE LA APLICACIÓN (CADENA NORMAL, NO F-STRING)
 # ============================================================
 
-HTML = f"""
+HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
 <style>
-* {{
+* {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
-}}
-html, body {{
+}
+html, body {
     margin: 0;
     padding: 0;
     width: 100vw;
@@ -302,8 +285,8 @@ html, body {{
     color: white;
     font-family: Arial, sans-serif;
     touch-action: none;
-}}
-#app {{
+}
+#app {
     position: fixed;
     inset: 0;
     width: 100vw;
@@ -313,22 +296,22 @@ html, body {{
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
-}}
-#background {{
+}
+#background {
     position: absolute;
     inset: -10%;
     z-index: 0;
     transition: background 0.7s ease;
-}}
-#grain {{
+}
+#grain {
     position: absolute;
     inset: 0;
     z-index: 40;
     pointer-events: none;
     opacity: .055;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E");
-}}
-#progress {{
+}
+#progress {
     position: absolute;
     top: max(10px, env(safe-area-inset-top));
     left: 12px;
@@ -336,21 +319,21 @@ html, body {{
     z-index: 100;
     display: flex;
     gap: 4px;
-}}
-.progress-bar {{
+}
+.progress-bar {
     flex: 1;
     height: 3px;
     border-radius: 10px;
     overflow: hidden;
     background: rgba(255,255,255,.22);
-}}
-.progress-fill {{
+}
+.progress-fill {
     width: 0%;
     height: 100%;
     border-radius: inherit;
     background: white;
-}}
-#counter {{
+}
+#counter {
     position: absolute;
     z-index: 100;
     right: 15px;
@@ -359,14 +342,14 @@ html, body {{
     font-weight: 800;
     letter-spacing: .15em;
     color: rgba(255,255,255,.6);
-}}
-#slides {{
+}
+#slides {
     position: relative;
     width: 100%;
     height: 100%;
     z-index: 10;
-}}
-.slide {{
+}
+.slide {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -380,16 +363,16 @@ html, body {{
     transform: translateX(60px) scale(.97);
     transition: opacity .5s ease, transform .6s ease;
     overflow: hidden;
-}}
-.slide.active {{
+}
+.slide.active {
     opacity: 1;
     pointer-events: auto;
     transform: translateX(0) scale(1);
-}}
-.slide.previous {{
+}
+.slide.previous {
     transform: translateX(-60px) scale(.97);
-}}
-.content {{
+}
+.content {
     width: 100%;
     max-width: 850px;
     height: 100%;
@@ -400,40 +383,40 @@ html, body {{
     text-align: center;
     overflow-y: auto;
     scrollbar-width: none;
-}}
-.content::-webkit-scrollbar {{ display: none; }}
-.eyebrow {{
+}
+.content::-webkit-scrollbar { display: none; }
+.eyebrow {
     font-size: clamp(9px, 2.3vw, 12px);
     letter-spacing: .23em;
     text-transform: uppercase;
     font-weight: 800;
     color: rgba(255,255,255,.65);
     margin-bottom: 15px;
-}}
-.title, .section-title, .final-title {{
+}
+.title, .section-title, .final-title {
     font-family: Arial, sans-serif;
     font-weight: 900;
     line-height: .98;
     letter-spacing: -.065em;
     margin: 0;
-}}
-.title {{
+}
+.title {
     font-size: clamp(2.8rem, 12vw, 7rem);
     background: linear-gradient(115deg, #ff2d75, #ff8a00, #ffd447, #9b52ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}}
-.section-title {{
+}
+.section-title {
     font-size: clamp(2rem, 8vw, 5rem);
-}}
-.subtitle {{
+}
+.subtitle {
     max-width: 580px;
     margin-top: 20px;
     color: rgba(255,255,255,.72);
     font-size: clamp(.9rem, 3vw, 1.1rem);
     line-height: 1.7;
-}}
-.cover-number {{
+}
+.cover-number {
     font-size: clamp(7rem, 30vw, 15rem);
     line-height: .7;
     font-weight: 900;
@@ -441,8 +424,8 @@ html, body {{
     background: linear-gradient(120deg, #ff2d75, #ff8a00, #ffd447, #8c52ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}}
-.photo-frame {{
+}
+.photo-frame {
     position: relative;
     width: min(88vw, 600px);
     max-height: 50vh;
@@ -451,14 +434,14 @@ html, body {{
     border-radius: 28px;
     border: 1px solid rgba(255,255,255,.12);
     box-shadow: 0 30px 80px rgba(0,0,0,.45);
-}}
-.photo-frame img {{
+}
+.photo-frame img {
     display: block;
     width: 100%;
     max-height: 50vh;
     object-fit: cover;
-}}
-.photo-caption {{
+}
+.photo-caption {
     position: absolute;
     left: 0;
     right: 0;
@@ -468,15 +451,15 @@ html, body {{
     background: linear-gradient(transparent, rgba(0,0,0,.85));
     font-weight: 700;
     font-size: .8rem;
-}}
-.stats {{
+}
+.stats {
     width: min(100%, 650px);
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     margin-top: 24px;
-}}
-.stat {{
+}
+.stat {
     min-height: 135px;
     padding: 20px;
     border-radius: 24px;
@@ -487,18 +470,18 @@ html, body {{
     background: rgba(255,255,255,.07);
     border: 1px solid rgba(255,255,255,.09);
     backdrop-filter: blur(15px);
-}}
-.stat-number {{
+}
+.stat-number {
     font-size: clamp(2rem, 9vw, 3.5rem);
     font-weight: 900;
-}}
-.stat-label {{
+}
+.stat-label {
     font-size: 9px;
     font-weight: 800;
     letter-spacing: .12em;
     color: rgba(255,255,255,.5);
-}}
-.big-date {{
+}
+.big-date {
     font-size: clamp(6rem, 28vw, 12rem);
     line-height: .8;
     font-weight: 900;
@@ -507,60 +490,60 @@ html, body {{
     background: linear-gradient(120deg, #ff2d75, #ffd447);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}}
-.section-text {{
+}
+.section-text {
     max-width: 620px;
     margin-top: 15px;
     color: rgba(255,255,255,.63);
     line-height: 1.75;
-}}
-.memories {{
+}
+.memories {
     width: min(100%, 650px);
     text-align: left;
     margin-top: 10px;
-}}
-.memory {{
+}
+.memory {
     display: flex;
     gap: 13px;
     padding: 14px 0;
     border-bottom: 1px solid rgba(255,255,255,.08);
-}}
-.memory-icon {{ font-size: 1.4rem; }}
-.memory-title {{ font-weight: 800; }}
-.memory-text {{
+}
+.memory-icon { font-size: 1.4rem; }
+.memory-title { font-weight: 800; }
+.memory-text {
     color: rgba(255,255,255,.55);
     font-size: .8rem;
     line-height: 1.5;
     margin-top: 3px;
-}}
-.places {{
+}
+.places {
     width: min(100%, 650px);
     margin-top: 15px;
-}}
-.place {{
+}
+.place {
     padding: 17px;
     margin: 8px 0;
     border-radius: 22px;
     background: rgba(255,255,255,.06);
     border: 1px solid rgba(255,255,255,.08);
     text-align: left;
-}}
-.place-number {{
+}
+.place-number {
     font-size: 1.4rem;
     font-weight: 900;
     color: rgba(255,255,255,.2);
-}}
-.place-name {{
+}
+.place-name {
     margin-top: 6px;
     font-weight: 900;
-}}
-.place-description {{
+}
+.place-description {
     margin-top: 5px;
     color: rgba(255,255,255,.5);
     font-size: .78rem;
     line-height: 1.5;
-}}
-.album {{
+}
+.album {
     width: min(65vw, 280px);
     aspect-ratio: 1;
     margin: 22px 0;
@@ -570,68 +553,68 @@ html, body {{
     align-items: center;
     background: linear-gradient(135deg, #ff2d75, #ff8a00, #7a38ff);
     box-shadow: 0 25px 70px rgba(0,0,0,.45);
-}}
-.album::before {{
+}
+.album::before {
     content: "♪";
     font-size: 9rem;
     font-family: Georgia, serif;
     color: rgba(255,255,255,.9);
-}}
-.featured-song {{
+}
+.featured-song {
     width: min(100%, 600px);
     text-align: left;
-}}
-.song-number {{
+}
+.song-number {
     font-size: 9px;
     letter-spacing: .2em;
     color: rgba(255,255,255,.4);
-}}
-.song-title {{
+}
+.song-title {
     font-size: clamp(1.3rem, 6vw, 2.4rem);
     font-weight: 900;
     margin-top: 7px;
-}}
-.song-artist {{
+}
+.song-artist {
     color: #ffd447;
     font-size: .85rem;
     font-weight: 700;
     margin-top: 6px;
-}}
-.song-meaning {{
+}
+.song-meaning {
     color: rgba(255,255,255,.58);
     line-height: 1.7;
     font-size: .82rem;
     margin-top: 13px;
-}}
-.gallery-photo {{
+}
+.gallery-photo {
     width: min(90vw, 700px);
     height: min(60vh, 650px);
     margin: 20px auto;
     overflow: hidden;
     border-radius: 30px;
     box-shadow: 0 30px 80px rgba(0,0,0,.5);
-}}
-.gallery-photo img {{
+}
+.gallery-photo img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-}}
-.final-title {{
+}
+.final-title {
     font-size: clamp(2.2rem, 10vw, 5rem);
     background: linear-gradient(120deg, #ff2d75, #ffd447, #9b52ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}}
-.days-label {{
+}
+.days-label {
     margin-top: 28px;
     color: rgba(255,255,255,.48);
-}}
-.days-number {{
+}
+.days-number {
     margin-top: 5px;
     font-size: clamp(3rem, 15vw, 6rem);
     font-weight: 900;
-}}
-.quote {{
+}
+.quote {
     max-width: 600px;
     margin-top: 28px;
     font-size: clamp(1rem, 4vw, 1.45rem);
@@ -640,8 +623,8 @@ html, body {{
     background: linear-gradient(90deg, #ff2d75, #ffd447, #9b52ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-}}
-#musicControl {{
+}
+#musicControl {
     position: absolute;
     z-index: 500;
     right: 16px;
@@ -657,26 +640,26 @@ html, body {{
     justify-content: center;
     align-items: center;
     padding: 0;
-}}
-.sound-bars {{
+}
+.sound-bars {
     height: 16px;
     display: flex;
     align-items: flex-end;
     gap: 2px;
-}}
-.sound-bar {{
+}
+.sound-bar {
     width: 2px;
     height: 6px;
     background: white;
     border-radius: 4px;
-}}
-.music-playing .sound-bar:nth-child(1) {{ animation: sound .55s infinite alternate; }}
-.music-playing .sound-bar:nth-child(2) {{ animation: sound .4s infinite alternate; }}
-.music-playing .sound-bar:nth-child(3) {{ animation: sound .7s infinite alternate; }}
-@keyframes sound {{
-    from {{ height: 4px; }}
-    to {{ height: 15px; }}
-}}
+}
+.music-playing .sound-bar:nth-child(1) { animation: sound .55s infinite alternate; }
+.music-playing .sound-bar:nth-child(2) { animation: sound .4s infinite alternate; }
+.music-playing .sound-bar:nth-child(3) { animation: sound .7s infinite alternate; }
+@keyframes sound {
+    from { height: 4px; }
+    to { height: 15px; }
+}
 </style>
 </head>
 <body>
@@ -841,10 +824,10 @@ html, body {{
     </button>
 </div>
 
-{AUDIO_HTML}
+__AUDIO_HTML__
 
 <script>
-const DATA = {DATOS_JSON};
+const DATA = __DATOS_JSON__;
 
 const app = document.getElementById("app");
 const slides = Array.from(document.querySelectorAll(".slide"));
@@ -857,9 +840,9 @@ const soundBars = document.getElementById("soundBars");
 
 let current = 0;
 let galleryIndex = 0;
-let photoIndexes = {{ december: 0, year2024: 0, year2025: 0 }};
+let photoIndexes = { december: 0, year2024: 0, year2025: 0 };
 
-const themes = {{
+const themes = {
     cover: "radial-gradient(circle at 20% 15%, #ff2d75 0%, transparent 32%), radial-gradient(circle at 85% 80%, #7738ff 0%, transparent 38%), linear-gradient(145deg,#17040d,#08030c)",
     stats: "radial-gradient(circle at 20% 20%, #ff8a00 0%, transparent 30%), radial-gradient(circle at 90% 70%, #ff2d75 0%, transparent 35%), linear-gradient(145deg,#16080b,#09030b)",
     start: "radial-gradient(circle at 75% 15%, #ffbd3d 0%, transparent 30%), radial-gradient(circle at 20% 80%, #ff2d75 0%, transparent 35%), linear-gradient(145deg,#1a0c04,#0b0408)",
@@ -871,67 +854,67 @@ const themes = {{
     music: "radial-gradient(circle at 20% 20%, #ff2d75 0%, transparent 35%), radial-gradient(circle at 85% 75%, #8c52ff 0%, transparent 38%), linear-gradient(145deg,#17051b,#08030d)",
     gallery: "radial-gradient(circle at 80% 20%, #00a6a6 0%, transparent 35%), radial-gradient(circle at 15% 80%, #ff2d75 0%, transparent 35%), linear-gradient(145deg,#031313,#08030c)",
     final: "radial-gradient(circle at 20% 20%, #ff2d75 0%, transparent 35%), radial-gradient(circle at 80% 80%, #8c52ff 0%, transparent 40%), linear-gradient(145deg,#17030e,#08030d)"
-}};
+};
 
-function createProgress() {{
+function createProgress() {
     progress.innerHTML = "";
-    slides.forEach(function () {{
+    slides.forEach(function () {
         const bar = document.createElement("div");
         bar.className = "progress-bar";
         const fill = document.createElement("div");
         fill.className = "progress-fill";
         bar.appendChild(fill);
         progress.appendChild(bar);
-    }});
-}}
+    });
+}
 createProgress();
 
-function renderPhoto(elementId, image, caption) {{
+function renderPhoto(elementId, image, caption) {
     const element = document.getElementById(elementId);
     if (!element || !image) return;
-    element.innerHTML = `<img src="${{image}}" draggable="false">${{caption ? `<div class="photo-caption">${{caption}}</div>` : ""}}`;
-}}
+    element.innerHTML = `<img src="${image}" draggable="false">${caption ? `<div class="photo-caption">${caption}</div>` : ""}`;
+}
 
 if (DATA.imagenes.inicio) renderPhoto("inicioPhoto", DATA.imagenes.inicio, "El comienzo de nosotros ❤️");
 if (DATA.imagenes.caifanes) renderPhoto("caifanesPhoto", DATA.imagenes.caifanes, "Una noche para recordar 🎸❤️");
 
-function renderDecember() {{
+function renderDecember() {
     const images = DATA.imagenes.diciembre_2023 || [];
     if (!images.length) return;
     const index = photoIndexes.december % images.length;
     renderPhoto("decemberPhoto", images[index], DATA.captions.diciembre_2023[index]);
-}}
+}
 
-function render2024() {{
+function render2024() {
     const images = DATA.imagenes.y2024 || [];
     if (!images.length) return;
     const index = photoIndexes.year2024 % images.length;
     renderPhoto("year2024Photo", images[index], DATA.captions.y2024[index]);
-}}
+}
 
-function render2025() {{
+function render2025() {
     const images = DATA.imagenes.y2025_2026 || [];
     if (!images.length) return;
     const index = photoIndexes.year2025 % images.length;
     renderPhoto("year2025Photo", images[index], DATA.captions.y2025_2026[index]);
-}}
+}
 
-function renderGallery() {{
+function renderGallery() {
     const images = DATA.imagenes.galeria || [];
     const photo = document.getElementById("galleryPhoto");
     const caption = document.getElementById("galleryCaption");
     if (!photo || !caption) return;
-    if (!images.length) {{
+    if (!images.length) {
         photo.innerHTML = "";
         caption.textContent = "Agrega fotografías a fotos/galeria";
         return;
-    }}
+    }
     const index = galleryIndex % images.length;
-    photo.innerHTML = `<img src="${{images[index]}}" draggable="false">`;
+    photo.innerHTML = `<img src="${images[index]}" draggable="false">`;
     caption.textContent = "Recuerdo " + (index + 1) + " de " + images.length;
-}}
+}
 
-function updateDays() {{
+function updateDays() {
     const now = new Date();
     let year = now.getFullYear();
     let anniversary = new Date(year, 8, 23);
@@ -940,10 +923,10 @@ function updateDays() {{
     const days = Math.ceil(difference / (1000 * 60 * 60 * 24));
     const element = document.getElementById("daysNumber");
     if (element) element.textContent = days;
-}}
+}
 updateDays();
 
-function showSlide(index, direction) {{
+function showSlide(index, direction) {
     if (index < 0 || index >= slides.length || index === current) return;
     const oldSlide = slides[current];
     const newSlide = slides[index];
@@ -959,15 +942,15 @@ function showSlide(index, direction) {{
     counter.textContent = String(current + 1).padStart(2, "0") + " / " + String(slides.length).padStart(2, "0");
 
     const bars = document.querySelectorAll(".progress-fill");
-    bars.forEach(function (bar, i) {{
+    bars.forEach(function (bar, i) {
         bar.style.width = i <= current ? "100%" : "0%";
-    }});
+    });
 
     if (current === 4) renderDecember();
     if (current === 5) render2024();
     if (current === 6) render2025();
     if (current === 9) renderGallery();
-}}
+}
 
 background.style.background = themes.cover;
 const firstBar = document.querySelector(".progress-fill");
@@ -978,24 +961,24 @@ render2024();
 render2025();
 renderGallery();
 
-function nextSlide() {{ if (current < slides.length - 1) showSlide(current + 1, 1); }}
-function previousSlide() {{ if (current > 0) showSlide(current - 1, -1); }}
+function nextSlide() { if (current < slides.length - 1) showSlide(current + 1, 1); }
+function previousSlide() { if (current > 0) showSlide(current - 1, -1); }
 
 let touchStartX = 0, touchStartY = 0, touching = false;
 
-app.addEventListener("touchstart", function (event) {{
+app.addEventListener("touchstart", function (event) {
     if (!event.touches.length) return;
     touchStartX = event.touches[0].clientX;
     touchStartY = event.touches[0].clientY;
     touching = true;
-}}, {{ passive: true }});
+}, { passive: true });
 
-app.addEventListener("touchmove", function (event) {{
+app.addEventListener("touchmove", function (event) {
     if (!touching) return;
     event.preventDefault();
-}}, {{ passive: false }});
+}, { passive: false });
 
-app.addEventListener("touchend", function (event) {{
+app.addEventListener("touchend", function (event) {
     if (!touching) return;
     touching = false;
     const touch = event.changedTouches[0];
@@ -1005,83 +988,86 @@ app.addEventListener("touchend", function (event) {{
     if (Math.abs(deltaX) < 45 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
     if (deltaX < 0) nextSlide();
     else previousSlide();
-}}, {{ passive: true }});
+}, { passive: true });
 
-app.addEventListener("click", function (event) {{
+app.addEventListener("click", function (event) {
     if (event.target.closest("#musicControl")) return;
-    if (window.innerWidth >= 800) {{
+    if (window.innerWidth >= 800) {
         if (event.clientX < window.innerWidth / 2) previousSlide();
         else nextSlide();
-    }}
-}});
+    }
+});
 
-document.addEventListener("keydown", function (event) {{
+document.addEventListener("keydown", function (event) {
     if (event.key === "ArrowRight") nextSlide();
     if (event.key === "ArrowLeft") previousSlide();
-    if (event.key === " ") {{ event.preventDefault(); nextSlide(); }}
-}});
+    if (event.key === " ") { event.preventDefault(); nextSlide(); }
+});
 
-setInterval(function () {{
-    if (current === 4) {{
+setInterval(function () {
+    if (current === 4) {
         const images = DATA.imagenes.diciembre_2023 || [];
-        if (images.length > 1) {{
+        if (images.length > 1) {
             photoIndexes.december = (photoIndexes.december + 1) % images.length;
             renderDecember();
-        }}
-    }}
-    if (current === 5) {{
+        }
+    }
+    if (current === 5) {
         const images = DATA.imagenes.y2024 || [];
-        if (images.length > 1) {{
+        if (images.length > 1) {
             photoIndexes.year2024 = (photoIndexes.year2024 + 1) % images.length;
             render2024();
-        }}
-    }}
-    if (current === 6) {{
+        }
+    }
+    if (current === 6) {
         const images = DATA.imagenes.y2025_2026 || [];
-        if (images.length > 1) {{
+        if (images.length > 1) {
             photoIndexes.year2025 = (photoIndexes.year2025 + 1) % images.length;
             render2025();
-        }}
-    }}
-    if (current === 9) {{
+        }
+    }
+    if (current === 9) {
         const images = DATA.imagenes.galeria || [];
-        if (images.length > 1) {{
+        if (images.length > 1) {
             galleryIndex = (galleryIndex + 1) % images.length;
             renderGallery();
-        }}
-    }}
+        }
+    }
 }, 5000);
 
 let musicStarted = false;
-function startMusic() {{
+function startMusic() {
     if (!music || musicStarted) return;
-    music.play().then(function () {{
+    music.play().then(function () {
         musicStarted = true;
         if (soundBars) soundBars.classList.add("music-playing");
-    }}).catch(function () {{}});
-}}
+    }).catch(function () {});
+}
 
-app.addEventListener("touchstart", startMusic, {{ once: true, passive: true }});
-app.addEventListener("click", startMusic, {{ once: true }});
+app.addEventListener("touchstart", startMusic, { once: true, passive: true });
+app.addEventListener("click", startMusic, { once: true });
 
-if (musicControl) {{
-    musicControl.addEventListener("click", function (event) {{
+if (musicControl) {
+    musicControl.addEventListener("click", function (event) {
         event.stopPropagation();
         if (!music) return;
-        if (music.paused) {{
-            music.play().then(function () {{
+        if (music.paused) {
+            music.play().then(function () {
                 if (soundBars) soundBars.classList.add("music-playing");
-            }}).catch(function () {{}});
-        }} else {{
+            }).catch(function () {});
+        } else {
             music.pause();
             if (soundBars) soundBars.classList.remove("music-playing");
-        }}
-    }});
-}}
+        }
+    });
+}
 </script>
 </body>
 </html>
 """
+
+# Reemplazamos los datos de manera limpia, sin romper el HTML/JS
+HTML = HTML_TEMPLATE.replace("__DATOS_JSON__", DATOS_JSON).replace("__AUDIO_HTML__", AUDIO_HTML)
 
 # ============================================================
 # RENDER STREAMLIT CON PANTALLA COMPLETA NATIVA
@@ -1092,4 +1078,3 @@ components.html(
     height=800,
     scrolling=False
 )
-

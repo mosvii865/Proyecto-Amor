@@ -118,18 +118,18 @@ CAPTIONS = {
     "diciembre_2023": [
         "En el pueblo de mi papá, contigo 🏡",
         "Rompiendo la piñata juntos 🎉",
-        "Rumbo al malecón 🌊",
+        "Nuestro viaje a Mazatlan 🌊",
     ],
     "y2024": [
-        "Emprendiendo con las togas SHESPAT 🎓",
         "Enseñándome a manejar la moto 🏍️",
-        "Mi cambio de look 💇",
-        "Nuestra primera Navidad juntos 🎄",
+        "Emprendiendo con las togas SHESPAT 🎓",
+        "Nuestra aventura por Commscope",
+        "El halloween sin presupuesto",
     ],
     "y2025_2026": [
-        "El reloj para mi papá 🎁",
-        "Carajo y Nena, nuestros conejitos 🐰",
-        "La feria y la rueda de la fortuna 🎡",
+        "Esta foto me encanta porque representa toda tu escencia",
+        "El regalo de mi papá",
+        "Nuestros hijos Cabo y Copito",
     ],
 }
 
@@ -332,6 +332,8 @@ html, body {
     height: 100%;
     border-radius: inherit;
     background: white;
+    transition: width linear;
+    will-change: width;
 }
 #counter {
     position: absolute;
@@ -368,6 +370,58 @@ html, body {
     opacity: 1;
     pointer-events: auto;
     transform: translateX(0) scale(1);
+}
+
+.slide.active .eyebrow,
+.slide.active .title,
+.slide.active .section-title,
+.slide.active .final-title,
+.slide.active .subtitle,
+.slide.active .section-text,
+.slide.active .stats,
+.slide.active .memories,
+.slide.active .places,
+.slide.active .album,
+.slide.active .featured-song,
+.slide.active .gallery-photo,
+.slide.active .photo-frame,
+.slide.active .big-date,
+.slide.active .days-label,
+.slide.active .days-number,
+.slide.active .quote {
+    animation: wrappedFadeUp .75s cubic-bezier(.2,.8,.2,1) both;
+}
+
+.slide.active .photo-frame img,
+.slide.active .gallery-photo img {
+    animation: wrappedKenBurns 8s ease-out both;
+}
+
+@keyframes wrappedFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(.985);
+        filter: blur(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
+
+@keyframes wrappedKenBurns {
+    from { transform: scale(1.02); }
+    to   { transform: scale(1.08); }
+}
+
+#background {
+    animation: wrappedBackground 12s ease-in-out infinite alternate;
+}
+
+@keyframes wrappedBackground {
+    from { transform: scale(1) translate3d(0,0,0); }
+    to   { transform: scale(1.06) translate3d(-1.5%,1%,0); }
 }
 .slide.previous {
     transform: translateX(-60px) scale(.97);
@@ -742,10 +796,10 @@ html, body {
                 <div class="eyebrow">CAPÍTULO · 2024</div>
                 <h2 class="section-title">Un año de<br>cambios</h2>
                 <div class="memories">
-                    <div class="memory"><div class="memory-icon">🎓</div><div><div class="memory-title">SHESPAT</div><div class="memory-text">Emprendiendo juntos.</div></div></div>
-                    <div class="memory"><div class="memory-icon">🏍️</div><div><div class="memory-title">La moto</div><div class="memory-text">Aprendiendo a manejar.</div></div></div>
-                    <div class="memory"><div class="memory-icon">💇</div><div><div class="memory-title">Mi cambio de look</div><div class="memory-text">Una nueva versión de mí.</div></div></div>
-                    <div class="memory"><div class="memory-icon">🎄</div><div><div class="memory-title">Nuestra primera Navidad</div><div class="memory-text">Creando una tradición propia.</div></div></div>
+                    <div class="memory"><div class="memory-icon">🏍️</div><div><div class="memory-title">La moto</div><div class="memory-text">Enseñándome a manejar la moto.</div></div></div>
+                    <div class="memory"><div class="memory-icon">🎓</div><div><div class="memory-title">SHESPAT</div><div class="memory-text">Emprendiendo con las togas.</div></div></div>
+                    <div class="memory"><div class="memory-icon">🏢</div><div><div class="memory-title">Commscope</div><div class="memory-text">Nuestra aventura por Commscope.</div></div></div>
+                    <div class="memory"><div class="memory-icon">🎃</div><div><div class="memory-title">Halloween</div><div class="memory-text">El Halloween sin presupuesto.</div></div></div>
                 </div>
                 <div class="photo-frame" id="year2024Photo"></div>
             </div>
@@ -756,9 +810,9 @@ html, body {
                 <div class="eyebrow">2025 · 2026</div>
                 <h2 class="section-title">Seguimos<br>escribiendo</h2>
                 <div class="memories">
-                    <div class="memory"><div class="memory-icon">🎁</div><div><div class="memory-title">El reloj para mi papá</div><div class="memory-text">Otro recuerdo de nuestra historia.</div></div></div>
-                    <div class="memory"><div class="memory-icon">🐰</div><div><div class="memory-title">Carajo y Nena</div><div class="memory-text">Dos pequeños integrantes de nuestra historia.</div></div></div>
-                    <div class="memory"><div class="memory-icon">🎡</div><div><div class="memory-title">La feria</div><div class="memory-text">Otra aventura juntos.</div></div></div>
+                    <div class="memory"><div class="memory-icon">❤️</div><div><div class="memory-title">Tu esencia</div><div class="memory-text">Esta foto me encanta porque representa toda tu escencia.</div></div></div>
+                    <div class="memory"><div class="memory-icon">🎁</div><div><div class="memory-title">El regalo de mi papá</div><div class="memory-text">Un regalo que también forma parte de nuestra historia.</div></div></div>
+                    <div class="memory"><div class="memory-icon">🐰</div><div><div class="memory-title">Cabo y Copito</div><div class="memory-text">Nuestros hijos y dos pequeños integrantes de nuestra historia.</div></div></div>
                 </div>
                 <div class="photo-frame" id="year2025Photo"></div>
             </div>
@@ -840,8 +894,18 @@ const soundBars = document.getElementById("soundBars");
 
 let current = 0;
 let galleryIndex = 0;
-let musicIndex = 0; // Agregado el índice para la música
+let musicIndex = 0;
 let photoIndexes = { december: 0, year2024: 0, year2025: 0 };
+
+const ITEM_DURATION = 3500;
+const DEFAULT_SLIDE_DURATION = 7500;
+
+let storyTimer = null;
+let contentTimer = null;
+let storyStartedAt = 0;
+let storyDuration = DEFAULT_SLIDE_DURATION;
+let storyRemaining = DEFAULT_SLIDE_DURATION;
+let storyPaused = false;
 
 const themes = {
     cover: "radial-gradient(circle at 20% 15%, #ff2d75 0%, transparent 32%), radial-gradient(circle at 85% 80%, #7738ff 0%, transparent 38%), linear-gradient(145deg,#17040d,#08030c)",
@@ -945,54 +1009,284 @@ function updateDays() {
 }
 updateDays();
 
-function showSlide(index, direction) {
+function getSlideDuration(index) {
+    if (index === slides.length - 1) return 0;
+
+    if (index === 4) {
+        const total = (DATA.imagenes.diciembre_2023 || []).length;
+        return Math.max(DEFAULT_SLIDE_DURATION, total * ITEM_DURATION);
+    }
+    if (index === 5) {
+        const total = (DATA.imagenes.y2024 || []).length;
+        return Math.max(DEFAULT_SLIDE_DURATION, total * ITEM_DURATION);
+    }
+    if (index === 6) {
+        const total = (DATA.imagenes.y2025_2026 || []).length;
+        return Math.max(DEFAULT_SLIDE_DURATION, total * ITEM_DURATION);
+    }
+    if (index === 8) {
+        const total = (DATA.canciones || []).length;
+        return Math.max(DEFAULT_SLIDE_DURATION, total * ITEM_DURATION);
+    }
+    if (index === 9) {
+        const total = (DATA.imagenes.galeria || []).length;
+        return Math.max(DEFAULT_SLIDE_DURATION, total * ITEM_DURATION);
+    }
+
+    if (index === 1 || index === 7) return 9000;
+    return DEFAULT_SLIDE_DURATION;
+}
+
+function stopTimers() {
+    if (storyTimer) {
+        clearTimeout(storyTimer);
+        storyTimer = null;
+    }
+    if (contentTimer) {
+        clearInterval(contentTimer);
+        contentTimer = null;
+    }
+}
+
+function updateProgressBars(duration, remaining = duration) {
+    const bars = Array.from(document.querySelectorAll(".progress-fill"));
+
+    bars.forEach(function (bar, i) {
+        bar.style.transition = "none";
+
+        if (i < current) {
+            bar.style.width = "100%";
+        } else {
+            bar.style.width = "0%";
+        }
+    });
+
+    const activeBar = bars[current];
+    if (!activeBar) return;
+
+    if (duration === 0) {
+        activeBar.style.width = "100%";
+        return;
+    }
+
+    const elapsedFraction = Math.max(0, Math.min(1, 1 - (remaining / duration)));
+    activeBar.style.width = (elapsedFraction * 100) + "%";
+
+    void activeBar.offsetWidth;
+
+    activeBar.style.transition = `width ${remaining}ms linear`;
+    activeBar.style.width = "100%";
+}
+
+function resetSectionContent(index) {
+    if (index === 4) {
+        photoIndexes.december = 0;
+        renderDecember();
+    }
+    if (index === 5) {
+        photoIndexes.year2024 = 0;
+        render2024();
+    }
+    if (index === 6) {
+        photoIndexes.year2025 = 0;
+        render2025();
+    }
+    if (index === 8) {
+        musicIndex = 0;
+        renderMusic();
+    }
+    if (index === 9) {
+        galleryIndex = 0;
+        renderGallery();
+    }
+}
+
+function startContentRotation() {
+    if (contentTimer) clearInterval(contentTimer);
+
+    contentTimer = setInterval(function () {
+        if (storyPaused) return;
+
+        if (current === 4) {
+            const images = DATA.imagenes.diciembre_2023 || [];
+            if (images.length > 1) {
+                photoIndexes.december = (photoIndexes.december + 1) % images.length;
+                renderDecember();
+            }
+        }
+
+        if (current === 5) {
+            const images = DATA.imagenes.y2024 || [];
+            if (images.length > 1) {
+                photoIndexes.year2024 = (photoIndexes.year2024 + 1) % images.length;
+                render2024();
+            }
+        }
+
+        if (current === 6) {
+            const images = DATA.imagenes.y2025_2026 || [];
+            if (images.length > 1) {
+                photoIndexes.year2025 = (photoIndexes.year2025 + 1) % images.length;
+                render2025();
+            }
+        }
+
+        if (current === 8) {
+            const songs = DATA.canciones || [];
+            if (songs.length > 1) {
+                musicIndex = (musicIndex + 1) % songs.length;
+                renderMusic();
+            }
+        }
+
+        if (current === 9) {
+            const images = DATA.imagenes.galeria || [];
+            if (images.length > 1) {
+                galleryIndex = (galleryIndex + 1) % images.length;
+                renderGallery();
+            }
+        }
+    }, ITEM_DURATION);
+}
+
+function startStoryTimer(customRemaining = null) {
+    if (storyTimer) clearTimeout(storyTimer);
+
+    storyDuration = getSlideDuration(current);
+    storyRemaining = customRemaining === null ? storyDuration : customRemaining;
+    storyStartedAt = performance.now();
+    storyPaused = false;
+
+    updateProgressBars(storyDuration, storyRemaining);
+
+    if (storyDuration === 0) {
+        if (contentTimer) {
+            clearInterval(contentTimer);
+            contentTimer = null;
+        }
+        return;
+    }
+
+    storyTimer = setTimeout(function () {
+        storyTimer = null;
+        if (current < slides.length - 1) {
+            showSlide(current + 1, 1, true);
+        }
+    }, storyRemaining);
+}
+
+function pauseStory() {
+    if (storyPaused || storyDuration === 0) return;
+
+    storyPaused = true;
+
+    if (storyTimer) {
+        clearTimeout(storyTimer);
+        storyTimer = null;
+    }
+
+    const elapsed = performance.now() - storyStartedAt;
+    storyRemaining = Math.max(0, storyRemaining - elapsed);
+
+    const activeBar = document.querySelectorAll(".progress-fill")[current];
+    if (activeBar) {
+        const computedWidth = getComputedStyle(activeBar).width;
+        const parentWidth = activeBar.parentElement.getBoundingClientRect().width || 1;
+        const pct = (parseFloat(computedWidth) / parentWidth) * 100;
+        activeBar.style.transition = "none";
+        activeBar.style.width = pct + "%";
+    }
+}
+
+function resumeStory() {
+    if (!storyPaused || storyDuration === 0) return;
+
+    storyPaused = false;
+    storyStartedAt = performance.now();
+
+    const activeBar = document.querySelectorAll(".progress-fill")[current];
+    if (activeBar) {
+        void activeBar.offsetWidth;
+        activeBar.style.transition = `width ${storyRemaining}ms linear`;
+        activeBar.style.width = "100%";
+    }
+
+    storyTimer = setTimeout(function () {
+        storyTimer = null;
+        if (current < slides.length - 1) {
+            showSlide(current + 1, 1, true);
+        }
+    }, storyRemaining);
+}
+
+function showSlide(index, direction, automatic = false) {
     if (index < 0 || index >= slides.length || index === current) return;
+
+    stopTimers();
+
     const oldSlide = slides[current];
     const newSlide = slides[index];
+
     oldSlide.classList.remove("active", "previous");
     if (direction < 0) oldSlide.classList.add("previous");
+
     newSlide.classList.remove("previous");
     newSlide.classList.add("active");
+
     current = index;
 
     const theme = newSlide.dataset.theme;
     if (background && themes[theme]) background.style.background = themes[theme];
 
-    counter.textContent = String(current + 1).padStart(2, "0") + " / " + String(slides.length).padStart(2, "0");
+    counter.textContent =
+        String(current + 1).padStart(2, "0") +
+        " / " +
+        String(slides.length).padStart(2, "0");
 
-    const bars = document.querySelectorAll(".progress-fill");
-    bars.forEach(function (bar, i) {
-        bar.style.width = i <= current ? "100%" : "0%";
-    });
-
-    if (current === 4) renderDecember();
-    if (current === 5) render2024();
-    if (current === 6) render2025();
-    if (current === 8) renderMusic(); // Se llama a renderMusic() cuando entramos en el slide de música
-    if (current === 9) renderGallery();
+    resetSectionContent(current);
+    startContentRotation();
+    startStoryTimer();
 }
 
 background.style.background = themes.cover;
-const firstBar = document.querySelector(".progress-fill");
-if (firstBar) firstBar.style.width = "100%";
 
-// Primera renderización inicial
+// Primera renderización inicial.
 renderDecember();
 render2024();
 render2025();
-renderMusic(); // Renderizamos la primera canción
+renderMusic();
 renderGallery();
 
-function nextSlide() { if (current < slides.length - 1) showSlide(current + 1, 1); }
-function previousSlide() { if (current > 0) showSlide(current - 1, -1); }
+function nextSlide() {
+    if (current < slides.length - 1) showSlide(current + 1, 1, false);
+}
 
-let touchStartX = 0, touchStartY = 0, touching = false;
+function previousSlide() {
+    if (current > 0) showSlide(current - 1, -1, false);
+}
+
+// Iniciar automáticamente como una historia tipo Wrapped.
+resetSectionContent(0);
+startContentRotation();
+startStoryTimer();
+
+let touchStartX = 0;
+let touchStartY = 0;
+let touchStartedAt = 0;
+let touching = false;
+let holdTimer = null;
 
 app.addEventListener("touchstart", function (event) {
     if (!event.touches.length) return;
+
     touchStartX = event.touches[0].clientX;
     touchStartY = event.touches[0].clientY;
+    touchStartedAt = performance.now();
     touching = true;
+
+    holdTimer = setTimeout(function () {
+        if (touching) pauseStory();
+    }, 220);
 }, { passive: true });
 
 app.addEventListener("touchmove", function (event) {
@@ -1002,18 +1296,54 @@ app.addEventListener("touchmove", function (event) {
 
 app.addEventListener("touchend", function (event) {
     if (!touching) return;
+
     touching = false;
+    if (holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+    }
+
     const touch = event.changedTouches[0];
     const deltaX = touch.clientX - touchStartX;
     const deltaY = touch.clientY - touchStartY;
+    const heldFor = performance.now() - touchStartedAt;
 
-    if (Math.abs(deltaX) < 45 || Math.abs(deltaX) <= Math.abs(deltaY)) return;
-    if (deltaX < 0) nextSlide();
-    else previousSlide();
+    if (storyPaused) {
+        resumeStory();
+        if (heldFor >= 220) return;
+    }
+
+    if (Math.abs(deltaX) >= 45 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX < 0) nextSlide();
+        else previousSlide();
+        return;
+    }
+
+    // Toque corto: izquierda retrocede, derecha avanza.
+    if (heldFor < 220) {
+        if (touch.clientX < window.innerWidth * 0.32) previousSlide();
+        else if (touch.clientX > window.innerWidth * 0.68) nextSlide();
+    }
 }, { passive: true });
 
-app.addEventListener("click", function (event) {
+app.addEventListener("mousedown", function (event) {
     if (event.target.closest("#musicControl")) return;
+    holdTimer = setTimeout(pauseStory, 220);
+});
+
+app.addEventListener("mouseup", function (event) {
+    if (event.target.closest("#musicControl")) return;
+
+    if (holdTimer) {
+        clearTimeout(holdTimer);
+        holdTimer = null;
+    }
+
+    if (storyPaused) {
+        resumeStory();
+        return;
+    }
+
     if (window.innerWidth >= 800) {
         if (event.clientX < window.innerWidth / 2) previousSlide();
         else nextSlide();
@@ -1023,46 +1353,21 @@ app.addEventListener("click", function (event) {
 document.addEventListener("keydown", function (event) {
     if (event.key === "ArrowRight") nextSlide();
     if (event.key === "ArrowLeft") previousSlide();
-    if (event.key === " ") { event.preventDefault(); nextSlide(); }
+
+    if (event.key === " ") {
+        event.preventDefault();
+        if (storyPaused) resumeStory();
+        else pauseStory();
+    }
 });
 
-setInterval(function () {
-    if (current === 4) {
-        const images = DATA.imagenes.diciembre_2023 || [];
-        if (images.length > 1) {
-            photoIndexes.december = (photoIndexes.december + 1) % images.length;
-            renderDecember();
-        }
+document.addEventListener("visibilitychange", function () {
+    if (document.hidden) {
+        pauseStory();
+    } else if (storyPaused) {
+        resumeStory();
     }
-    if (current === 5) {
-        const images = DATA.imagenes.y2024 || [];
-        if (images.length > 1) {
-            photoIndexes.year2024 = (photoIndexes.year2024 + 1) % images.length;
-            render2024();
-        }
-    }
-    if (current === 6) {
-        const images = DATA.imagenes.y2025_2026 || [];
-        if (images.length > 1) {
-            photoIndexes.year2025 = (photoIndexes.year2025 + 1) % images.length;
-            render2025();
-        }
-    }
-    if (current === 8) {
-        const songs = DATA.canciones || [];
-        if (songs.length > 1) {
-            musicIndex = (musicIndex + 1) % songs.length;
-            renderMusic(); // Hace rotar las canciones automáticamente
-        }
-    }
-    if (current === 9) {
-        const images = DATA.imagenes.galeria || [];
-        if (images.length > 1) {
-            galleryIndex = (galleryIndex + 1) % images.length;
-            renderGallery();
-        }
-    }
-}, 5000);
+});
 
 let musicStarted = false;
 function startMusic() {

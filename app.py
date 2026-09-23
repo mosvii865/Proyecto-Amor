@@ -303,6 +303,107 @@ html, body {
     z-index: 0;
     transition: background 0.7s ease;
 }
+/* Capas decorativas independientes: ningún efecto intercepta los gestos. */
+#ambient, #celebration, #transitionGlow, #effects {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+#ambient, #celebration { z-index: 5; }
+#transitionGlow { z-index: 55; opacity: 0; }
+#effects { z-index: 60; }
+.ambient-light {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #fff4d6;
+    box-shadow: 0 0 12px 4px rgba(255,210,175,.35);
+    opacity: 0;
+    animation: ambientTwinkle var(--twinkle-time) ease-in-out infinite;
+    animation-delay: var(--twinkle-delay);
+}
+@keyframes ambientTwinkle {
+    0%, 100% { opacity: 0; transform: translate3d(0,8px,0) scale(.5); }
+    48% { opacity: .55; transform: translate3d(8px,-12px,0) scale(1); }
+}
+.transition-flash { animation: transitionFlash .7s ease-out both; }
+@keyframes transitionFlash {
+    0% { opacity: 0; background: radial-gradient(circle at 50% 50%, rgba(255,202,230,.27), transparent 68%); }
+    27% { opacity: 1; }
+    100% { opacity: 0; }
+}
+.sparkle {
+    position: absolute;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 10px 3px rgba(255,221,194,.6);
+    animation: sparkleBurst var(--lifetime) ease-out forwards;
+}
+.sparkle::before, .sparkle::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    background: rgba(255,244,229,.85);
+    transform: translate(-50%, -50%);
+}
+.sparkle::before { width: 1px; height: 12px; }
+.sparkle::after { width: 12px; height: 1px; }
+@keyframes sparkleBurst {
+    0% { opacity: 0; transform: translate3d(0,8px,0) scale(.3); }
+    25% { opacity: .9; }
+    100% { opacity: 0; transform: translate3d(var(--travel-x),var(--travel-y),0) scale(.35); }
+}
+.confetti {
+    position: absolute;
+    width: 6px;
+    height: 10px;
+    border-radius: 2px;
+    background: var(--particle-color);
+    opacity: 0;
+    animation: confettiFall var(--lifetime) ease-out forwards;
+    animation-delay: var(--delay);
+}
+@keyframes confettiFall {
+    0% { opacity: 0; transform: translate3d(0,-12vh,0) rotate(0deg); }
+    12% { opacity: .8; }
+    82% { opacity: .7; }
+    100% { opacity: 0; transform: translate3d(var(--travel-x),105vh,0) rotate(var(--rotation)); }
+}
+.balloon {
+    position: absolute;
+    bottom: -165px;
+    width: clamp(35px, 8vw, 62px);
+    height: clamp(48px, 11vw, 83px);
+    border-radius: 50% 50% 47% 47%;
+    opacity: .38;
+    background: radial-gradient(circle at 35% 27%, rgba(255,255,255,.8), transparent 24%), var(--balloon-color);
+    box-shadow: inset -10px -13px 16px rgba(0,0,0,.19), 0 0 20px rgba(255,141,215,.12);
+    animation: balloonRise var(--rise-time) linear var(--delay) infinite;
+}
+.balloon::before {
+    content: "";
+    position: absolute;
+    left: 44%; bottom: -8px;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 8px solid var(--balloon-color);
+}
+.balloon::after {
+    content: "";
+    position: absolute;
+    left: 50%; bottom: -64px;
+    width: 1px; height: 58px;
+    background: rgba(255,255,255,.4);
+}
+@keyframes balloonRise {
+    0% { transform: translate3d(0,0,0) rotate(-7deg); }
+    50% { transform: translate3d(16px,-62vh,0) rotate(6deg); }
+    100% { transform: translate3d(-8px,-126vh,0) rotate(-5deg); }
+}
 #grain {
     position: absolute;
     inset: 0;
@@ -396,6 +497,8 @@ html, body {
 .slide.active .gallery-photo img {
     animation: wrappedKenBurns 8s ease-out both;
 }
+.slide.active .content > :nth-child(2) { animation-delay: .08s; }
+.slide.active .content > :nth-child(3) { animation-delay: .16s; }
 
 @keyframes wrappedFadeUp {
     from {
@@ -714,13 +817,29 @@ html, body {
     from { height: 4px; }
     to { height: 15px; }
 }
+@media (max-width: 600px) {
+    .ambient-light:nth-child(n+6) { display: none; }
+    .balloon { opacity: .28; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .slide, #background, .progress-fill { transition-duration: .01ms !important; }
+    .slide.active *, .slide.active, #background, .ambient-light,
+    .sparkle, .confetti, .balloon, .transition-flash {
+        animation: none !important;
+    }
+    #ambient, #celebration, #effects, #transitionGlow { display: none; }
+}
 </style>
 </head>
 <body>
 
 <div id="app">
     <div id="background"></div>
+    <div id="ambient" aria-hidden="true"></div>
+    <div id="celebration" aria-hidden="true"></div>
     <div id="grain"></div>
+    <div id="transitionGlow" aria-hidden="true"></div>
+    <div id="effects" aria-hidden="true"></div>
     <div id="progress"></div>
     <div id="counter">01 / 11</div>
 
@@ -891,6 +1010,85 @@ const background = document.getElementById("background");
 const music = document.getElementById("backgroundMusic");
 const musicControl = document.getElementById("musicControl");
 const soundBars = document.getElementById("soundBars");
+const ambient = document.getElementById("ambient");
+const celebration = document.getElementById("celebration");
+const effects = document.getElementById("effects");
+const transitionGlow = document.getElementById("transitionGlow");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+// Pocas partículas a la vez y se eliminan al terminar: apto para celulares.
+function removeAfterAnimation(element) {
+    element.addEventListener("animationend", function () { element.remove(); }, { once: true });
+}
+
+function setUpAmbient() {
+    if (reducedMotion.matches) return;
+    for (let i = 0; i < 9; i++) {
+        const light = document.createElement("span");
+        light.className = "ambient-light";
+        light.style.left = (7 + ((i * 37) % 87)) + "%";
+        light.style.top = (8 + ((i * 41) % 78)) + "%";
+        light.style.setProperty("--twinkle-time", (4.5 + (i % 4)) + "s");
+        light.style.setProperty("--twinkle-delay", (-i * .73) + "s");
+        ambient.appendChild(light);
+    }
+}
+
+function transitionSparkles() {
+    if (reducedMotion.matches) return;
+    transitionGlow.classList.remove("transition-flash");
+    void transitionGlow.offsetWidth;
+    transitionGlow.classList.add("transition-flash");
+
+    const amount = window.innerWidth < 600 ? 7 : 12;
+    for (let i = 0; i < amount; i++) {
+        const star = document.createElement("span");
+        star.className = "sparkle";
+        star.style.left = (12 + Math.random() * 76) + "%";
+        star.style.top = (12 + Math.random() * 72) + "%";
+        star.style.setProperty("--size", (2 + Math.random() * 3) + "px");
+        star.style.setProperty("--travel-x", ((Math.random() - .5) * 68) + "px");
+        star.style.setProperty("--travel-y", (-20 - Math.random() * 60) + "px");
+        star.style.setProperty("--lifetime", (650 + Math.random() * 500) + "ms");
+        effects.appendChild(star);
+        removeAfterAnimation(star);
+    }
+}
+
+function showerConfetti(amount) {
+    if (reducedMotion.matches) return;
+    const colors = ["#ffcae4", "#ffd447", "#a684ff", "#9af6e4"];
+    for (let i = 0; i < amount; i++) {
+        const piece = document.createElement("span");
+        piece.className = "confetti";
+        piece.style.left = (5 + Math.random() * 90) + "%";
+        piece.style.setProperty("--particle-color", colors[i % colors.length]);
+        piece.style.setProperty("--travel-x", ((Math.random() - .5) * 90) + "px");
+        piece.style.setProperty("--rotation", (180 + Math.random() * 520) + "deg");
+        piece.style.setProperty("--delay", (Math.random() * 350) + "ms");
+        piece.style.setProperty("--lifetime", (2400 + Math.random() * 1200) + "ms");
+        effects.appendChild(piece);
+        removeAfterAnimation(piece);
+    }
+}
+
+function showBalloons() {
+    celebration.replaceChildren();
+    if (reducedMotion.matches) return;
+    const colors = ["#ff77ba", "#b897ff", "#ffd271", "#ff9dcf"];
+    const amount = window.innerWidth < 600 ? 3 : 5;
+    for (let i = 0; i < amount; i++) {
+        const balloon = document.createElement("span");
+        balloon.className = "balloon";
+        balloon.style.left = (6 + i * (88 / amount)) + "%";
+        balloon.style.setProperty("--balloon-color", colors[i % colors.length]);
+        balloon.style.setProperty("--rise-time", (14 + i * 2) + "s");
+        balloon.style.setProperty("--delay", (-i * 2.7) + "s");
+        celebration.appendChild(balloon);
+    }
+}
+
+setUpAmbient();
 
 let current = 0;
 let galleryIndex = 0;
@@ -1234,6 +1432,13 @@ function showSlide(index, direction, automatic = false) {
     newSlide.classList.add("active");
 
     current = index;
+    celebration.replaceChildren();
+    transitionSparkles();
+    if (current === slides.length - 1) {
+        showBalloons();
+        showerConfetti(window.innerWidth < 600 ? 16 : 25);
+    }
+    if (current === 0) showerConfetti(window.innerWidth < 600 ? 7 : 12);
 
     const theme = newSlide.dataset.theme;
     if (background && themes[theme]) background.style.background = themes[theme];
@@ -1249,6 +1454,7 @@ function showSlide(index, direction, automatic = false) {
 }
 
 background.style.background = themes.cover;
+showerConfetti(window.innerWidth < 600 ? 7 : 12);
 
 // Primera renderización inicial.
 renderDecember();
